@@ -5,6 +5,6 @@ export class RabbitMQPublisher {
   static async broadcastMessage(message: string) {
     const channel = await RabbitMQConnection.getChannel();
     await channel.assertExchange(RABBITMQ_CONFIG.exchange.broadcast, "fanout", { durable: true });
-    channel.publish(RABBITMQ_CONFIG.exchange.broadcast, "", Buffer.from(message));
+    channel.publish(RABBITMQ_CONFIG.exchange.broadcast, "", Buffer.from(message), { persistent: true });
   }
 }
