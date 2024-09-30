@@ -4,17 +4,13 @@ import { CreateProductDTO } from "../dtos/Product/CreateProductDTO";
 import { GetFilteredProductsDTO } from "../dtos/Product/GetFilteredProductsDTO";
 import { ProductResponseDTO } from "../dtos/Product/ProductResponseDTO";
 import { UpdateProductPriceDTO } from "../dtos/Product/UpdateProductPriceDTO";
-import { UpdateProductQuantityDTO } from "../dtos/Product/UpdateProductQuantityDTO";
 import { DeleteProductDTO } from "../dtos/Product/DeleteProductDTO";
 import { NotFoundError } from "../utils/CustomError";
-
-import { CentralProduct } from "../entities/ProductEntity";
 export class ProductController {
   constructor() {
     this.createProduct = this.createProduct.bind(this);
     this.getFilteredProducts = this.getFilteredProducts.bind(this);
     this.getAllProducts = this.getAllProducts.bind(this);
-    this.updateProductQuantity = this.updateProductQuantity.bind(this);
     this.updateProductPrice = this.updateProductPrice.bind(this);
     this.deleteProduct = this.deleteProduct.bind(this);
     this.deleteAllProducts = this.deleteAllProducts.bind(this);
@@ -51,18 +47,6 @@ export class ProductController {
       const product: ProductResponseDTO[] = await ProductRepository.getAllProducts();
       res.status(201).json({
         message: "Products fetched successfully",
-        data: product,
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-  async updateProductQuantity(req: Request, res: Response, next: NextFunction) {
-    try {
-      const dto: UpdateProductQuantityDTO = req.body;
-      const product: ProductResponseDTO = await ProductRepository.updateProductQuantitydto(dto);
-      res.status(201).json({
-        message: "Product quantity updated successfully",
         data: product,
       });
     } catch (error) {

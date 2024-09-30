@@ -5,7 +5,6 @@ import { UpdateCustomerTotalPaidDTO } from "../dtos/Customer/UpdateCustomerTotal
 import { GetFilteredCustomersDTO } from "../dtos/Customer/GetFilteredCustomersDTO";
 import { CustomerResponseDTO } from "../dtos/Customer/CustomerResponseDTO";
 import { NotFoundError } from "../utils/CustomError";
-import { ProductResponseDTO } from "../dtos/Product/ProductResponseDTO";
 
 export const CustomerRepository = AppDataSource.getRepository(CentralCustomer).extend({
   async updateCustomerTotalPaid(dto: UpdateCustomerTotalPaidDTO): Promise<CustomerResponseDTO> {

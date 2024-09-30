@@ -10,18 +10,18 @@ const router = Router();
 const customerController = new CustomerController();
 
 router
-    .route("/customer")
-    .get(customerController.getAllCustomers)
-    .post(validationMiddleware(CreateCustomerDTO), customerController.createCustomer)
-    .delete(customerController.deleteAllCustomers)
-    .delete(validationMiddleware(DeleteCustomerDTO, "query"), customerController.deleteCustomerByName);
+  .route("/customer")
+  .post(validationMiddleware(CreateCustomerDTO), customerController.createCustomer)
+  .delete(validationMiddleware(DeleteCustomerDTO, "query"), customerController.deleteCustomerByName);
+
+router.route("/customer/all").get(customerController.getAllCustomers).delete(customerController.deleteAllCustomers);
 
 router
-    .route("/customer/total_paid")
-    .patch(validationMiddleware(UpdateCustomerTotalPaidDTO), customerController.updateCustomerTotalPaid);
+  .route("/customer/total_paid")
+  .patch(validationMiddleware(UpdateCustomerTotalPaidDTO), customerController.updateCustomerTotalPaid);
 
 router
-    .route("/customer/filtered")
-    .get(validationMiddleware(GetFilteredCustomersDTO, "query"), customerController.getFilteredCustomers);
+  .route("/customer/filtered")
+  .get(validationMiddleware(GetFilteredCustomersDTO, "query"), customerController.getFilteredCustomers);
 
 export default router;

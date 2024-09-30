@@ -1,3 +1,6 @@
+import { ProductResponseDTO } from "../Product/ProductResponseDTO";
+
 export class CategoryResponseDTO {
-  name: string;
+  name?: string;
+  products?: ProductResponseDTO[];
 }

@@ -11,6 +11,7 @@ export class CategoryController {
     this.createCategory = this.createCategory.bind(this);
     this.updateCategoryName = this.updateCategoryName.bind(this);
     this.DeleteCategory = this.DeleteCategory.bind(this);
+    this.DeleteAllCategories = this.DeleteAllCategories.bind(this);
   }
 
   async createCategory(req: Request, res: Response, next: NextFunction) {
@@ -69,6 +70,20 @@ export class CategoryController {
       res.status(200).json({
         message: "Category deleted successfully",
         data: deletedCategory,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async DeleteAllCategories(req: Request, res: Response, next: NextFunction) {
+    try {
+      const deletedCategories = await CategoryRepository.deleteAllCategories();
+
+      // Respond with the deleted category data
+      res.status(200).json({
+        message: "Category deleted successfully",
+        data: deletedCategories,
       });
     } catch (error) {
       next(error);

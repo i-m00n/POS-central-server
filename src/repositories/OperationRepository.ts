@@ -1,11 +1,10 @@
 import { AppDataSource } from "../config/database.config";
-import { OrderRepository } from "../repositories/OrderRepository";
-import { ProductRepository } from "../repositories/ProductRepository";
 import { CentralOperation } from "../entities/OperationEntity";
 import { OperationResponseDTO } from "../dtos/Operation/OperationResponseDTO";
 import { CreateOperationDTO } from "../dtos/Operation/CreateOperationDTO";
 import { NotFoundError } from "../utils/CustomError";
-
+import { OrderRepository } from "./OrderRepository";
+import { ProductRepository } from "./ProductRepository";
 export const OperationRepository = AppDataSource.getRepository(CentralOperation).extend({
   async getOperationsByOrderID(order_id: number): Promise<OperationResponseDTO[]> {
     const orderId = order_id;
@@ -37,11 +36,11 @@ export const OperationRepository = AppDataSource.getRepository(CentralOperation)
     });
 
     if (!order) {
-      throw new NotFoundError("Order not found");
+      throw new NotFoundError(`Order not found with id: ${operationData.order_id}`);
     }
 
     if (!product) {
-      throw new NotFoundError("Product not found");
+      throw new NotFoundError(`Product not found with id: ${operationData.product_id}`);
     }
 
     const total_price = parseFloat(operationData.total_price);
@@ -57,7 +56,7 @@ export const OperationRepository = AppDataSource.getRepository(CentralOperation)
 
     const operationResponseDTO: OperationResponseDTO = {
       quantity: savedOperation.quantity,
-      totalPrice: savedOperation.total_price,
+      total_price: savedOperation.total_price,
       order_id: savedOperation.order.id,
       product_id: savedOperation.product?.id ?? null,
     };

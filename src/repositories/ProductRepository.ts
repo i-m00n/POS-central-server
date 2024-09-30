@@ -1,25 +1,21 @@
 import { AppDataSource } from "../config/database.config";
 import { CentralProduct } from "../entities/ProductEntity";
 import { NotFoundError } from "../utils/CustomError";
-import { UpdateProductQuantityDTO } from "../dtos/Product/UpdateProductQuantityDTO";
 import { ProductResponseDTO } from "../dtos/Product/ProductResponseDTO";
-import { Not } from "typeorm";
-import { GetFilteredOrderDTO } from "../dtos/Order/GetFilteredOrderDTO";
 import { GetFilteredProductsDTO } from "../dtos/Product/GetFilteredProductsDTO";
-import { CreateCategoryDTO } from "../dtos/category/CreateCategoryDTO";
 import { CreateProductDTO } from "../dtos/Product/CreateProductDTO";
 import { UpdateProductPriceDTO } from "../dtos/Product/UpdateProductPriceDTO";
 import { DeleteProductDTO } from "../dtos/Product/DeleteProductDTO";
 
 export const ProductRepository = AppDataSource.getRepository(CentralProduct).extend({
   async updateProductPrice(dto: UpdateProductPriceDTO): Promise<ProductResponseDTO> {
-    const product = await ProductRepository.findOneBy({ name: dto.name });
+    const product = await this.findOneBy({ name: dto.name });
     if (!product) {
       throw new NotFoundError("Product not found");
     }
 
     product.price = dto.price;
-    const updatedProduct = await ProductRepository.save(product);
+    const updatedProduct = await this.save(product);
 
     ////// check for the rest of enitites
     const productResponseDTO: ProductResponseDTO = {
@@ -33,7 +29,7 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
   },
 
   async getAllProducts(): Promise<ProductResponseDTO[]> {
-    const products = await ProductRepository.find({
+    const products = await this.find({
       order: {
         id: "ASC",
       },
@@ -52,10 +48,7 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
     return productResponseDTO;
   },
   async getFilteredProducts(dto: GetFilteredProductsDTO): Promise<ProductResponseDTO[]> {
-    const queryBuilder = ProductRepository.createQueryBuilder("product").leftJoinAndSelect(
-      "product.category",
-      "category"
-    );
+    const queryBuilder = this.createQueryBuilder("product").leftJoinAndSelect("product.category", "category");
     //including data from related tables
     // each product belongs to a category Many2one
     if (dto.name) {
@@ -63,9 +56,6 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
     }
     if (dto.measure) {
       queryBuilder.andWhere("product.measure = :measure", { measure: dto.measure });
-    }
-    if (dto.quantity) {
-      queryBuilder.andWhere("product.quantity = :quantity", { quantity: dto.quantity });
     }
     if (dto.price) {
       queryBuilder.andWhere("product.price = :price", { price: dto.price });
@@ -95,27 +85,27 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
 
   async createProduct(productData: CreateProductDTO): Promise<ProductResponseDTO> {
     //findone
-    const category = await ProductRepository.findOne({
+    const category = await this.findOne({
       where: { id: productData.categoryId },
     });
     if (!category) {
       throw new NotFoundError("Category not found");
     }
 
-    const product = ProductRepository.create({
+    const product = this.create({
       name: productData.name,
       measure: productData.measure,
       price: productData.price,
       category: category,
     });
 
-    const savedProduct = await ProductRepository.save(product);
+    const savedProduct = await this.save(product);
 
     const productResponseDTO: ProductResponseDTO = {
       id: savedProduct.id,
       name: savedProduct.name,
-      measure: savedProduct.measure,
       price: savedProduct.price,
+      measure: savedProduct.measure,
       category: savedProduct.category.name,
     };
 
@@ -140,10 +130,10 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
   },
 
   async deleteAllProducts(): Promise<void> {
-    const products = await ProductRepository.find();
+    const products = await this.find();
     if (products.length == 0) {
       throw new NotFoundError("No products to delete");
     }
-    await ProductRepository.remove(products);
+    await this.remove(products);
   },
 });

@@ -1,7 +1,7 @@
 export class ProductResponseDTO {
-  name: string;
-  id: number;
-  price: number;
-  measure: string;
-  category: string;
+  id?: number;
+  name?: string;
+  price?: number;
+  measure?: string;
+  category?: string;
 }

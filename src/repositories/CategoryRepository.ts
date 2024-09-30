@@ -27,15 +27,21 @@ export const CategoryRepository = AppDataSource.getRepository(CentralCategory).e
       order: {
         id: "ASC",
       },
+      relations: ["products"],
     });
 
     if (!categories || categories.length === 0) {
       throw new NotFoundError("No categories found");
     }
 
-    // Map raw entities to CategoryResponseDTO
     const categoryResponseDTOs: CategoryResponseDTO[] = categories.map((category) => ({
       name: category.name,
+      products: category.products.map((product) => ({
+        id: product.id,
+        name: product.name,
+        measure: product.measure,
+        price: product.price,
+      })),
     }));
 
     return categoryResponseDTOs;
@@ -75,5 +81,13 @@ export const CategoryRepository = AppDataSource.getRepository(CentralCategory).e
     return {
       name: category.name,
     };
+  },
+
+  async deleteAllCategories(): Promise<void> {
+    const categories = await this.find();
+    if (categories.length == 0) {
+      throw new NotFoundError("no customers to delete");
+    }
+    await this.remove(categories);
   },
 });
