@@ -17,8 +17,12 @@ AppDataSource.initialize()
     console.log("Data Source has been initialized!");
 
     // Start listening to RabbitMQ broadcasts
-    await RabbitMQConsumer.handleMessageFromLocal();
-    console.log("RabbitMQ consumer is listening...");
+    try {
+      await RabbitMQConsumer.handleMessageFromLocal();
+      console.log("Listening to RabbitMQ broadcasts...");
+    } catch (error) {
+      console.error("Failed to start RabbitMQ Consumer", error);
+    }
 
     // Start the Express server
     app.listen(port, () => {
