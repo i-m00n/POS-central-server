@@ -1,5 +1,5 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from "typeorm";
-import { CentralOrder } from "./OrderEntity.js";
+import { CentralOrder } from "./OrderEntity";
 import { customer_class_enum } from "../enums/databaseEnums";
 
 @Entity()

@@ -22,6 +22,7 @@ export const OrderRepository = AppDataSource.getRepository(CentralOrder).extend(
 
     const order = this.create({
       total_price: total_price,
+      branch_name: orderData.branch_name,
       order_type: orderData.order_type,
       order_method: orderData.order_method,
       date: new Date(orderData.date),
@@ -33,6 +34,7 @@ export const OrderRepository = AppDataSource.getRepository(CentralOrder).extend(
     const orderResponseDTO: OrderResponseDTO = {
       id: savedOrder.id,
       total_price: savedOrder.total_price,
+      branch_name: savedOrder.branch_name,
       order_type: savedOrder.order_type,
       order_method: savedOrder.order_method,
       date: savedOrder.date,

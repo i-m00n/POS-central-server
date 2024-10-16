@@ -6,6 +6,10 @@ export class CreateOrderDTO {
   @IsNotEmpty()
   total_price: string;
 
+  @IsNotEmpty()
+  @IsString()
+  branch_name: string;
+
   @IsEnum(order_type_enum)
   @IsNotEmpty()
   order_type: order_type_enum;

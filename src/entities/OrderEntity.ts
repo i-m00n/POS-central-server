@@ -9,7 +9,7 @@ export class CentralOrder {
   id: number;
 
   @Column()
-  branch_id: string;
+  branch_name: string;
 
   @Column("decimal", { precision: 10, scale: 2 })
   total_price: number;

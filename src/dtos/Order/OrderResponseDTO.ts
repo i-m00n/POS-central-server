@@ -4,6 +4,7 @@ import { OperationResponseDTO } from "../Operation/OperationResponseDTO";
 export class OrderResponseDTO {
   id?: number;
   total_price?: number;
+  branch_name?: string;
   order_type?: order_type_enum;
   order_method?: order_method_enum;
   date?: Date;
