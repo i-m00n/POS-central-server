@@ -8,11 +8,9 @@ import { GetFilteredOrderDTO } from "../dtos/Order/GetFilteredOrderDTO";
 const router = Router();
 const orderController = new OrderController();
 
-router
-  .route("/order")
-  .get(validationMiddleware(OrderResponseDTO), orderController.getAllOrders)
-  .post(validationMiddleware(CreateOrderDTO), orderController.createOrder);
+router.route("/order").post(validationMiddleware(CreateOrderDTO), orderController.createOrder);
 
+router.route("/order/all").get(orderController.getAllOrders);
 router.get("/order/filter", validationMiddleware(GetFilteredOrderDTO), orderController.getFilteredOrders);
 
 export default router;
