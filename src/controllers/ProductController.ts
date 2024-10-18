@@ -6,6 +6,7 @@ import { ProductResponseDTO } from "../dtos/Product/ProductResponseDTO";
 import { UpdateProductPriceDTO } from "../dtos/Product/UpdateProductPriceDTO";
 import { DeleteProductDTO } from "../dtos/Product/DeleteProductDTO";
 import { NotFoundError } from "../utils/CustomError";
+import { RabbitMQPublisher } from "../message_brokers/rabbitmq.publisher";
 export class ProductController {
   constructor() {
     this.createProduct = this.createProduct.bind(this);
@@ -20,6 +21,13 @@ export class ProductController {
     try {
       const productData: CreateProductDTO = req.body;
       const product: ProductResponseDTO = await ProductRepository.createProduct(productData);
+      const rabbitMQ_message = {
+        table: "product",
+        action: "create",
+        data: productData,
+      };
+      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+
       res.status(201).json({
         message: "Product created successfully",
         data: product,
@@ -57,6 +65,14 @@ export class ProductController {
     try {
       const dto: UpdateProductPriceDTO = req.body;
       const product: ProductResponseDTO = await ProductRepository.updateProductPrice(dto);
+
+      const rabbitMQ_message = {
+        table: "product",
+        action: "updatePrice",
+        data: dto,
+      };
+      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+
       res.status(200).json({
         message: "Product price updated successfully",
         data: product,
@@ -77,6 +93,13 @@ export class ProductController {
 
       const deletedCategory = await ProductRepository.deleteProduct(dto);
 
+      const rabbitMQ_message = {
+        table: "product",
+        action: "deleteOne",
+        data: dto,
+      };
+      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+
       res.status(200).json({
         message: "Product deleted successfully",
         data: deletedCategory,
@@ -89,6 +112,13 @@ export class ProductController {
   async deleteAllProducts(req: Request, res: Response, next: NextFunction) {
     try {
       await ProductRepository.deleteAllProducts();
+
+      const rabbitMQ_message = {
+        table: "product",
+        action: "deleteAll",
+      };
+      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+
       res.status(200).json({
         message: "All products deleted successfully",
       });

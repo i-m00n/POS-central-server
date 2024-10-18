@@ -5,6 +5,7 @@ import { CustomerRepository } from "../repositories/CustomerRepository";
 import { GetFilteredCustomersDTO } from "../dtos/Customer/GetFilteredCustomersDTO";
 import { NotFoundError } from "../utils/CustomError";
 import { UpdateCustomerTotalPaidDTO } from "../dtos/Customer/UpdateCustomerTotalPaidDTO";
+import { RabbitMQPublisher } from "../message_brokers/rabbitmq.publisher";
 export class CustomerController {
   constructor() {
     this.createCustomer = this.createCustomer.bind(this);
@@ -20,6 +21,14 @@ export class CustomerController {
     try {
       const customerData: CreateCustomerDTO = req.body;
       const customer: CustomerResponseDTO = await CustomerRepository.createCustomer(customerData);
+
+      const rabbitMQ_message = {
+        table: "customer",
+        action: "create",
+        data: customerData,
+      };
+      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+
       res.status(201).json({
         message: "Customer created successfully",
         data: customer,
@@ -61,6 +70,14 @@ export class CustomerController {
     try {
       const dto: UpdateCustomerTotalPaidDTO = req.body;
       const customer: CustomerResponseDTO = await CustomerRepository.updateCustomerTotalPaid(dto);
+
+      const rabbitMQ_message = {
+        table: "customer",
+        action: "updateTotalPaid",
+        data: dto,
+      };
+      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+
       res.status(200).json({
         message: "Customer total paid updated successfully",
         data: customer,
@@ -81,6 +98,13 @@ export class CustomerController {
 
       const deletedCustomer = await CustomerRepository.deleteCustomerByName(name);
 
+      const rabbitMQ_message = {
+        table: "customer",
+        action: "deleteOne",
+        data: name,
+      };
+      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+
       res.status(200).json({
         message: "Customer deleted successfully",
         data: deletedCustomer,
@@ -94,6 +118,13 @@ export class CustomerController {
   async deleteAllCustomers(req: Request, res: Response, next: NextFunction) {
     try {
       await CustomerRepository.deleteAllCustomers();
+
+      const rabbitMQ_message = {
+        table: "customer",
+        action: "deleteAll",
+      };
+      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+
       res.status(200).json({
         message: "All customers deleted successfully",
       });

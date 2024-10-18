@@ -4,6 +4,7 @@ import { CreateCategoryDTO } from "../dtos/category/CreateCategoryDTO";
 import { UpdateCategoryNameDTO } from "../dtos/category/UpdateCategoryNameDTO";
 import { DeleteCategoryDTO } from "../dtos/category/DeleteCategoryDTO";
 import { NotFoundError } from "../utils/CustomError";
+import { RabbitMQPublisher } from "../message_brokers/rabbitmq.publisher";
 
 export class CategoryController {
   constructor() {
@@ -18,6 +19,14 @@ export class CategoryController {
     try {
       const dto: CreateCategoryDTO = req.body;
       const category = await CategoryRepository.createCategory(dto);
+
+      const rabbitMQ_message = {
+        table: "category",
+        action: "create",
+        data: dto,
+      };
+      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+
       res.status(201).json({
         message: "category created successfully",
         data: category,
@@ -43,6 +52,14 @@ export class CategoryController {
     try {
       const dto: UpdateCategoryNameDTO = req.body;
       const updatedCategory = await CategoryRepository.updateCategoryName(dto);
+
+      const rabbitMQ_message = {
+        table: "category",
+        action: "updateName",
+        data: dto,
+      };
+      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+
       res.status(201).json({
         message: "category updated successfully",
         data: updatedCategory,
@@ -66,6 +83,13 @@ export class CategoryController {
       // Call the repository method to delete the category
       const deletedCategory = await CategoryRepository.deleteCategory(deleteCategoryDTO);
 
+      const rabbitMQ_message = {
+        table: "category",
+        action: "deleteOne",
+        data: deleteCategoryDTO,
+      };
+      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+
       // Respond with the deleted category data
       res.status(200).json({
         message: "Category deleted successfully",
@@ -79,6 +103,11 @@ export class CategoryController {
   async DeleteAllCategories(req: Request, res: Response, next: NextFunction) {
     try {
       const deletedCategories = await CategoryRepository.deleteAllCategories();
+      const rabbitMQ_message = {
+        table: "category",
+        action: "deleteAll",
+      };
+      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
 
       // Respond with the deleted category data
       res.status(200).json({

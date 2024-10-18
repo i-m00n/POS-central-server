@@ -18,10 +18,10 @@ export class RabbitMQConsumer {
       RABBITMQ_CONFIG.queues.centralQueue,
       async (message) => {
         if (message) {
-          const { action, table, date: transactionData, branch_name } = JSON.parse(message.content.toString());
+          const { action, table, data, branch_name } = JSON.parse(message.content.toString());
 
           if (table === "order&operations" && action === "create") {
-            const { total_price, order_type, order_method, date, customer_phone_number, operations } = transactionData;
+            const { total_price, order_type, order_method, date, customer_phone_number, operations } = data;
 
             const createOrderDTO: CreateOrderDTO = {
               total_price,

@@ -6,6 +6,7 @@ import { GetFilteredProductsDTO } from "../dtos/Product/GetFilteredProductsDTO";
 import { CreateProductDTO } from "../dtos/Product/CreateProductDTO";
 import { UpdateProductPriceDTO } from "../dtos/Product/UpdateProductPriceDTO";
 import { DeleteProductDTO } from "../dtos/Product/DeleteProductDTO";
+import { CategoryRepository } from "./CategoryRepository";
 
 export const ProductRepository = AppDataSource.getRepository(CentralProduct).extend({
   async updateProductPrice(dto: UpdateProductPriceDTO): Promise<ProductResponseDTO> {
@@ -23,7 +24,7 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
       id: updatedProduct.id,
       price: updatedProduct.price,
       measure: updatedProduct.measure,
-      category: product.category.name,
+      // category: product.category.name,
     };
     return productResponseDTO;
   },
@@ -85,8 +86,8 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
 
   async createProduct(productData: CreateProductDTO): Promise<ProductResponseDTO> {
     //findone
-    const category = await this.findOne({
-      where: { id: productData.categoryId },
+    const category = await CategoryRepository.findOne({
+      where: { name: productData.category },
     });
     if (!category) {
       throw new NotFoundError("Category not found");
@@ -123,7 +124,7 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
       name: product.name,
       measure: product.measure,
       price: product.price,
-      category: product.category.name,
+      // category: product.category.name,
     };
 
     return productResponseDTO;
