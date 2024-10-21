@@ -5,7 +5,7 @@ export class OperationResponseDTO {
 
   order_id?: number;
 
-  product_name?: string;
+  product_name?: string | null;
 
   product_id?: number | null;
 }

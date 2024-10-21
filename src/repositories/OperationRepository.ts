@@ -12,7 +12,6 @@ export const OperationRepository = AppDataSource.getRepository(CentralOperation)
       where: { order: { id: orderId } },
       relations: ["order", "product"],
     });
-
     if (!operations) {
       throw new NotFoundError("No operations found for the given order ID");
     }
@@ -20,8 +19,9 @@ export const OperationRepository = AppDataSource.getRepository(CentralOperation)
     const operationResponseDTOs: OperationResponseDTO[] = operations.map((operation) => ({
       quantity: operation.quantity,
       totalPrice: operation.total_price,
-      order_id: operation.order.id, // Assuming `order` relation provides `id`
-      product_id: operation.product?.id ?? null, // Assuming `product` relation provides `id`
+      order_id: operation.order.id,
+      product_name: operation.product?.name ?? null,
+      product_id: operation.product?.id ?? null,
     }));
 
     return operationResponseDTOs;
