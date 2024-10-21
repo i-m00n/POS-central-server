@@ -85,7 +85,10 @@ export const OrderRepository = AppDataSource.getRepository(CentralOrder).extend(
     }
 
     if (dto.start_date && dto.end_date) {
-      where.date = Between(dto.start_date, dto.end_date);
+      const endDateInclusive = new Date(dto.end_date);
+      endDateInclusive.setHours(23, 59, 59, 999);
+
+      where.date = Between(dto.start_date, endDateInclusive);
     }
 
     // Fetch filtered orders along with customer and operations relations
