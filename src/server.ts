@@ -10,11 +10,12 @@ import ProductRoutes from "./routes/ProductRoute";
 import CustomerRoutes from "./routes/CustomerRoute";
 import { errorHandler } from "./middlewares/ErrorHandler";
 import { RabbitMQConsumer } from "./message_brokers/rabbitmq.consumer"; // Import your consumer
+import cors from "cors";
 
 const app = express();
 const port = 4000;
-
 app.use(bodyParser.json());
+app.use(cors());
 
 app.use("/api", ProductRoutes);
 app.use("/api", CustomerRoutes);
