@@ -4,12 +4,12 @@ import bodyParser from "body-parser";
 import { AppDataSource } from "./config/database.config";
 import OrderRoutes from "./routes/OrderRoutes";
 import CategoryRoutes from "./routes/CategoryRoutes";
-import OperationsRoutes from "./routes/OperationRoutes"; // Corrected the spelling of Operations
+import OperationsRoutes from "./routes/OperationRoutes";
 import ConfigRoutes from "./routes/ConfigRoutes";
 import ProductRoutes from "./routes/ProductRoute";
 import CustomerRoutes from "./routes/CustomerRoute";
 import { errorHandler } from "./middlewares/ErrorHandler";
-import { RabbitMQConsumer } from "./message_brokers/rabbitmq.consumer"; // Import your consumer
+import { RabbitMQConsumer } from "./message_brokers/rabbitmq.consumer";
 import cors from "cors";
 
 const app = express();
@@ -24,7 +24,7 @@ app.use("/api", CategoryRoutes);
 app.use("/api", OperationsRoutes);
 app.use("/api", ConfigRoutes);
 
-// ### Error handling middleware should be added here, after routes ###
+// Error handling middleware should be added here, after routes ###
 app.use(errorHandler);
 
 // Initialize the database connection
@@ -34,12 +34,12 @@ AppDataSource.initialize()
 
     // Start listening to RabbitMQ broadcasts
     try {
-      await RabbitMQConsumer.handleMessageFromLocal();
-      console.log("Listening to RabbitMQ broadcasts...");
+      await RabbitMQConsumer.listenToLocalServers();
     } catch (error) {
       console.error("Failed to start RabbitMQ Consumer", error);
     }
 
+    RabbitMQConsumer.initReconnectionListener();
     // Start the Express server
     app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
