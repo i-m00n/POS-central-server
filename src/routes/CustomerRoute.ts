@@ -21,7 +21,7 @@ router
   .patch(validationMiddleware(UpdateCustomerTotalPaidDTO), customerController.updateCustomerTotalPaid);
 
 router
-  .route("/customer/filtered")
+  .route("/customer/filter")
   .get(validationMiddleware(GetFilteredCustomersDTO, "query"), customerController.getFilteredCustomers);
 
 export default router;

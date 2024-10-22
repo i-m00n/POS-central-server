@@ -41,7 +41,7 @@ export class CustomerController {
   // 2. Get filtered customers
   async getFilteredCustomers(req: Request, res: Response, next: NextFunction) {
     try {
-      const dto: GetFilteredCustomersDTO = req.query as any;
+      const dto: GetFilteredCustomersDTO = req.query;
       const customers: CustomerResponseDTO[] = await CustomerRepository.getFilteredCustomers(dto);
       res.status(200).json({
         message: "Filtered customers fetched successfully",

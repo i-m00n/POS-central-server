@@ -8,7 +8,7 @@ export class GetFilteredCustomersDTO {
 
   @IsDecimal()
   @IsOptional()
-  total_paid: number;
+  total_paid?: number;
 
   @IsEnum(customer_class_enum)
   @IsOptional()
