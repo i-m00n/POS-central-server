@@ -4,18 +4,25 @@ import { NotFoundError } from "../utils/CustomError";
 import { ProductResponseDTO } from "../dtos/Product/ProductResponseDTO";
 import { GetFilteredProductsDTO } from "../dtos/Product/GetFilteredProductsDTO";
 import { CreateProductDTO } from "../dtos/Product/CreateProductDTO";
-import { UpdateProductPriceDTO } from "../dtos/Product/UpdateProductPriceDTO";
+import { UpdateProductDataDTO } from "../dtos/Product/UpdateProductPriceDTO";
 import { DeleteProductDTO } from "../dtos/Product/DeleteProductDTO";
 import { CategoryRepository } from "./CategoryRepository";
 
 export const ProductRepository = AppDataSource.getRepository(CentralProduct).extend({
-  async updateProductPrice(dto: UpdateProductPriceDTO): Promise<ProductResponseDTO> {
+  async updateProductData(dto: UpdateProductDataDTO): Promise<ProductResponseDTO> {
     const product = await this.findOneBy({ name: dto.name });
     if (!product) {
       throw new NotFoundError("Product not found");
     }
 
-    product.price = dto.price;
+    if (dto.new_name !== undefined) {
+      product.name = dto.new_name;
+    }
+
+    if (dto.price !== undefined) {
+      product.price = dto.price;
+    }
+
     const updatedProduct = await this.save(product);
 
     ////// check for the rest of enitites

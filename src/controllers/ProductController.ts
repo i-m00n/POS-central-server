@@ -3,7 +3,7 @@ import { ProductRepository } from "../repositories/ProductRepository";
 import { CreateProductDTO } from "../dtos/Product/CreateProductDTO";
 import { GetFilteredProductsDTO } from "../dtos/Product/GetFilteredProductsDTO";
 import { ProductResponseDTO } from "../dtos/Product/ProductResponseDTO";
-import { UpdateProductPriceDTO } from "../dtos/Product/UpdateProductPriceDTO";
+import { UpdateProductDataDTO } from "../dtos/Product/UpdateProductPriceDTO";
 import { DeleteProductDTO } from "../dtos/Product/DeleteProductDTO";
 import { NotFoundError } from "../utils/CustomError";
 import { RabbitMQPublisher } from "../message_brokers/rabbitmq.publisher";
@@ -12,7 +12,7 @@ export class ProductController {
     this.createProduct = this.createProduct.bind(this);
     this.getFilteredProducts = this.getFilteredProducts.bind(this);
     this.getAllProducts = this.getAllProducts.bind(this);
-    this.updateProductPrice = this.updateProductPrice.bind(this);
+    this.updateProductData = this.updateProductData.bind(this);
     this.deleteProduct = this.deleteProduct.bind(this);
     this.deleteAllProducts = this.deleteAllProducts.bind(this);
   }
@@ -61,10 +61,10 @@ export class ProductController {
       next(error);
     }
   }
-  async updateProductPrice(req: Request, res: Response, next: NextFunction) {
+  async updateProductData(req: Request, res: Response, next: NextFunction) {
     try {
-      const dto: UpdateProductPriceDTO = req.body;
-      const product: ProductResponseDTO = await ProductRepository.updateProductPrice(dto);
+      const dto: UpdateProductDataDTO = req.body;
+      const product: ProductResponseDTO = await ProductRepository.updateProductData(dto);
 
       const rabbitMQ_message = {
         table: "product",

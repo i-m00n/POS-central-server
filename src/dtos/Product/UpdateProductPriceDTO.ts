@@ -1,11 +1,15 @@
-import { IsString, IsNotEmpty, IsDecimal, IsPositive } from "class-validator";
+import { IsString, IsNotEmpty, IsDecimal, IsPositive, IsOptional } from "class-validator";
 
-export class UpdateProductPriceDTO {
+export class UpdateProductDataDTO {
   @IsString()
   @IsNotEmpty()
   name: string;
 
+  @IsString()
+  @IsOptional()
+  new_name?: string;
+
   @IsDecimal()
-  @IsNotEmpty()
-  price: number;
+  @IsOptional()
+  price?: number;
 }
