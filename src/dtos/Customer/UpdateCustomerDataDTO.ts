@@ -8,6 +8,10 @@ export class UpdateCustomerDataDTO {
 
   @IsString()
   @IsOptional()
+  new_phone_number?: string;
+
+  @IsString()
+  @IsOptional()
   name?: string;
 
   @IsString()

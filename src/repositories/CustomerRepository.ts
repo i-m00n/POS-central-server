@@ -14,6 +14,10 @@ export const CustomerRepository = AppDataSource.getRepository(CentralCustomer).e
       throw new NotFoundError("Customer not found");
     }
 
+    if (dto.new_phone_number !== undefined) {
+      customer.phone_number = dto.new_phone_number;
+    }
+
     if (dto.total_paid !== undefined) {
       customer.total_paid = dto.total_paid;
     }
