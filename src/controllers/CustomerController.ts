@@ -4,14 +4,14 @@ import { CreateCustomerDTO } from "../dtos/Customer/CreateCustomerDTO";
 import { CustomerRepository } from "../repositories/CustomerRepository";
 import { GetFilteredCustomersDTO } from "../dtos/Customer/GetFilteredCustomersDTO";
 import { NotFoundError } from "../utils/CustomError";
-import { UpdateCustomerTotalPaidDTO } from "../dtos/Customer/UpdateCustomerTotalPaidDTO";
+import { UpdateCustomerDataDTO } from "../dtos/Customer/UpdateCustomerDataDTO";
 import { RabbitMQPublisher } from "../message_brokers/rabbitmq.publisher";
 export class CustomerController {
   constructor() {
     this.createCustomer = this.createCustomer.bind(this);
     this.getFilteredCustomers = this.getFilteredCustomers.bind(this);
     this.getAllCustomers = this.getAllCustomers.bind(this);
-    this.updateCustomerTotalPaid = this.updateCustomerTotalPaid.bind(this);
+    this.updateCustomerData = this.updateCustomerData.bind(this);
     this.deleteCustomerByName = this.deleteCustomerByName.bind(this);
     this.deleteAllCustomers = this.deleteAllCustomers.bind(this);
   }
@@ -66,10 +66,10 @@ export class CustomerController {
   }
 
   // 4. Update customer total paid
-  async updateCustomerTotalPaid(req: Request, res: Response, next: NextFunction) {
+  async updateCustomerData(req: Request, res: Response, next: NextFunction) {
     try {
-      const dto: UpdateCustomerTotalPaidDTO = req.body;
-      const customer: CustomerResponseDTO = await CustomerRepository.updateCustomerTotalPaid(dto);
+      const dto: UpdateCustomerDataDTO = req.body;
+      const customer: CustomerResponseDTO = await CustomerRepository.updateCustomerData(dto);
 
       const rabbitMQ_message = {
         table: "customer",

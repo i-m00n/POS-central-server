@@ -1,25 +1,38 @@
 import { AppDataSource } from "../config/database.config";
 import { CentralCustomer } from "../entities/CustomerEntity";
 import { CreateCustomerDTO } from "../dtos/Customer/CreateCustomerDTO";
-import { UpdateCustomerTotalPaidDTO } from "../dtos/Customer/UpdateCustomerTotalPaidDTO";
+import { UpdateCustomerDataDTO } from "../dtos/Customer/UpdateCustomerDataDTO";
 import { GetFilteredCustomersDTO } from "../dtos/Customer/GetFilteredCustomersDTO";
 import { CustomerResponseDTO } from "../dtos/Customer/CustomerResponseDTO";
 import { NotFoundError } from "../utils/CustomError";
 
 export const CustomerRepository = AppDataSource.getRepository(CentralCustomer).extend({
-  async updateCustomerTotalPaid(dto: UpdateCustomerTotalPaidDTO): Promise<CustomerResponseDTO> {
+  async updateCustomerData(dto: UpdateCustomerDataDTO): Promise<CustomerResponseDTO> {
     const customer = await CustomerRepository.findOneBy({ phone_number: dto.phone_number });
+
     if (!customer) {
-      throw new NotFoundError("Customer not Found");
+      throw new NotFoundError("Customer not found");
     }
-    customer.total_paid = dto.total_paid;
+
+    if (dto.total_paid !== undefined) {
+      customer.total_paid = dto.total_paid;
+    }
+    if (dto.name !== undefined) {
+      customer.name = dto.name;
+    }
+    if (dto.class !== undefined) {
+      customer.class = dto.class;
+    }
+
     const updatedCustomer = await CustomerRepository.save(customer);
+
     const customerResponseDTO: CustomerResponseDTO = {
       name: updatedCustomer.name,
       phone_number: updatedCustomer.phone_number,
       total_paid: updatedCustomer.total_paid,
       class: updatedCustomer.class,
     };
+
     return customerResponseDTO;
   },
 
