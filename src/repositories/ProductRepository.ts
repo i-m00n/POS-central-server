@@ -114,7 +114,7 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
       name: savedProduct.name,
       price: savedProduct.price,
       measure: savedProduct.measure,
-      category: savedProduct.category.name,
+      // category: savedProduct.category.name,
     };
 
     return productResponseDTO;

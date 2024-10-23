@@ -9,10 +9,6 @@ export class CreateProductDTO {
   @IsNotEmpty()
   measure: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  quantity: number;
-
   @IsDecimal()
   @IsNotEmpty()
   price: number;
