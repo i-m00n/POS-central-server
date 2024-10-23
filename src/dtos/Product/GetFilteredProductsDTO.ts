@@ -11,7 +11,7 @@ export class GetFilteredProductsDTO {
 
   @IsString()
   @IsOptional()
-  category?: string;
+  category_name?: string;
 
   @IsDecimal()
   @IsOptional()
