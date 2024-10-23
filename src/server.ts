@@ -11,6 +11,8 @@ import CustomerRoutes from "./routes/CustomerRoute";
 import { errorHandler } from "./middlewares/ErrorHandler";
 import { RabbitMQConsumer } from "./message_brokers/rabbitmq.consumer";
 import cors from "cors";
+import { RabbitMQPublisher } from "./message_brokers/rabbitmq.publisher";
+import { error } from "console";
 
 const app = express();
 const port = 4000;
@@ -32,18 +34,25 @@ AppDataSource.initialize()
   .then(async () => {
     console.log("Data Source has been initialized!");
 
-    // Start listening to RabbitMQ broadcasts
-    try {
-      await RabbitMQConsumer.listenToLocalServers();
-    } catch (error) {
-      console.error("Failed to start RabbitMQ Consumer", error);
-    }
-
-    RabbitMQConsumer.initReconnectionListener();
     // Start the Express server
     app.listen(port, () => {
       console.log(`Server is running on http://localhost:${port}`);
     });
+
+    // Start listening to RabbitMQ broadcasts
+    RabbitMQConsumer.listenToLocalServers().catch((error) => {
+      console.error("Failed to start RabbitMQ Consumer", error);
+    });
+
+    // Initialize reconnection listener
+    RabbitMQConsumer.initReconnectionListener();
+
+    // Set up periodic resend of unsent messages
+    setInterval(() => {
+      RabbitMQPublisher.resendUnsentMessages().catch((error) => {
+        console.error("Error resending unsent messages", error);
+      });
+    }, 60000); // Try to resend every minute
   })
   .catch((err) => {
     console.error("Error during Data Source initialization", err);
