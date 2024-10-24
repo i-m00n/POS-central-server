@@ -1,6 +1,6 @@
 import { AppDataSource } from "../config/database.config";
 import { CentralProduct } from "../entities/ProductEntity";
-import { NotFoundError } from "../utils/CustomError";
+import { ConflictError, NotFoundError } from "../utils/CustomError";
 import { ProductResponseDTO } from "../dtos/Product/ProductResponseDTO";
 import { GetFilteredProductsDTO } from "../dtos/Product/GetFilteredProductsDTO";
 import { CreateProductDTO } from "../dtos/Product/CreateProductDTO";
@@ -20,6 +20,11 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
     transactionalEntityManager?: EntityManager
   ): Promise<ProductResponseDTO> {
     const repo = this.getRepo(transactionalEntityManager);
+    const existingProduct = await repo.findOneBy({ name: dto.new_name });
+
+    if (existingProduct) {
+      throw new ConflictError(`Product with name ${dto.new_name} already exists.`);
+    }
 
     const product = await repo.findOneBy({ name: dto.name });
     if (!product) {
@@ -111,6 +116,15 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
     const categoryRepo = transactionalEntityManager
       ? transactionalEntityManager.getRepository(CentralCategory)
       : CategoryRepository;
+
+    // First check if product with this name already exists
+    const existingProduct = await productRepo.findOne({
+      where: { name: productData.name },
+    });
+
+    if (existingProduct) {
+      throw new ConflictError(`Product with name ${productData.name} already exists.`);
+    }
 
     const category = await categoryRepo.findOne({
       where: { name: productData.category },
