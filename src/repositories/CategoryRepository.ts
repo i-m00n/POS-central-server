@@ -1,3 +1,4 @@
+import { EntityManager } from "typeorm";
 import { AppDataSource } from "../config/database.config";
 import { CategoryResponseDTO } from "../dtos/category/CategoryResponseDTO";
 import { CreateCategoryDTO } from "../dtos/category/CreateCategoryDTO";
@@ -7,23 +8,28 @@ import { CentralCategory } from "../entities/CategoryEntity";
 import { NotFoundError } from "../utils/CustomError";
 
 export const CategoryRepository = AppDataSource.getRepository(CentralCategory).extend({
-  async createCategory(categoryData: CreateCategoryDTO): Promise<CategoryResponseDTO> {
-    // Create a new category entity from the provided data
-    const category = CategoryRepository.create(categoryData);
-
-    // Save the category to the database
-    const savedCategory = await CategoryRepository.save(category);
-
-    // Map the saved entity to CategoryResponseDTO
-    const categoryResponseDTO: CategoryResponseDTO = {
-      name: savedCategory.name,
-    };
-
-    return categoryResponseDTO;
+  getRepo(transactionalEntityManager?: EntityManager) {
+    return transactionalEntityManager ? transactionalEntityManager.getRepository(CentralCategory) : this;
   },
 
-  async getAllCategories(): Promise<CategoryResponseDTO[]> {
-    const categories = await CategoryRepository.find({
+  async createCategory(
+    categoryData: CreateCategoryDTO,
+    transactionalEntityManager?: EntityManager
+  ): Promise<CategoryResponseDTO> {
+    const repo = this.getRepo(transactionalEntityManager);
+
+    const category = repo.create(categoryData);
+    const savedCategory = await repo.save(category);
+
+    return {
+      name: savedCategory.name,
+    };
+  },
+
+  async getAllCategories(transactionalEntityManager?: EntityManager): Promise<CategoryResponseDTO[]> {
+    const repo = this.getRepo(transactionalEntityManager);
+
+    const categories = await repo.find({
       order: {
         id: "ASC",
       },
@@ -34,7 +40,7 @@ export const CategoryRepository = AppDataSource.getRepository(CentralCategory).e
       throw new NotFoundError("No categories found");
     }
 
-    const categoryResponseDTOs: CategoryResponseDTO[] = categories.map((category) => ({
+    return categories.map((category) => ({
       name: category.name,
       products: category.products.map((product) => ({
         id: product.id,
@@ -43,51 +49,52 @@ export const CategoryRepository = AppDataSource.getRepository(CentralCategory).e
         price: product.price,
       })),
     }));
-
-    return categoryResponseDTOs;
   },
 
-  async updateCategoryName(dto: UpdateCategoryNameDTO): Promise<CategoryResponseDTO> {
+  async updateCategoryName(
+    dto: UpdateCategoryNameDTO,
+    transactionalEntityManager?: EntityManager
+  ): Promise<CategoryResponseDTO> {
+    const repo = this.getRepo(transactionalEntityManager);
     const { currentName, newName } = dto;
 
-    // Find the category by current name
-    const category = await CategoryRepository.findOneBy({ name: currentName });
+    const category = await repo.findOneBy({ name: currentName });
     if (!category) {
       throw new NotFoundError("Category not found");
     }
 
-    // Update the category name
     category.name = newName;
+    const updatedCategory = await repo.save(category);
 
-    // Save the updated category
-    const updatedCategory = await CategoryRepository.save(category);
-
-    // Map the updated entity to CategoryResponseDTO
-    const categoryResponseDTO: CategoryResponseDTO = {
+    return {
       name: updatedCategory.name,
     };
-
-    return categoryResponseDTO;
   },
 
-  async deleteCategory(dto: DeleteCategoryDTO): Promise<CategoryResponseDTO> {
-    const category = await this.findOneBy({ name: dto.name });
+  async deleteCategory(
+    dto: DeleteCategoryDTO,
+    transactionalEntityManager?: EntityManager
+  ): Promise<CategoryResponseDTO> {
+    const repo = this.getRepo(transactionalEntityManager);
+
+    const category = await repo.findOneBy({ name: dto.name });
     if (!category) {
       throw new NotFoundError("Category not found");
     }
-    console.log(category);
 
-    await this.remove(category);
+    await repo.remove(category);
     return {
       name: category.name,
     };
   },
 
-  async deleteAllCategories(): Promise<void> {
-    const categories = await this.find();
+  async deleteAllCategories(transactionalEntityManager?: EntityManager): Promise<void> {
+    const repo = this.getRepo(transactionalEntityManager);
+
+    const categories = await repo.find();
     if (categories.length == 0) {
       throw new NotFoundError("no customers to delete");
     }
-    await this.remove(categories);
+    await repo.remove(categories);
   },
 });

@@ -52,7 +52,7 @@ AppDataSource.initialize()
       RabbitMQPublisher.resendUnsentMessages().catch((error) => {
         console.error("Error resending unsent messages", error);
       });
-    }, 60000); // Try to resend every minute
+    }, 5000); // Try to resend every minute
   })
   .catch((err) => {
     console.error("Error during Data Source initialization", err);

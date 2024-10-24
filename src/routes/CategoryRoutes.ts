@@ -11,7 +11,7 @@ const categoryController = new CategoryController();
 router
   .route("/category")
   .post(validationMiddleware(CreateCategoryDTO), categoryController.createCategory)
-  .put(validationMiddleware(UpdateCategoryNameDTO), categoryController.updateCategoryName)
+  .patch(validationMiddleware(UpdateCategoryNameDTO), categoryController.updateCategoryName)
   .delete(validationMiddleware(DeleteCategoryDTO, "query"), categoryController.DeleteCategory);
 
 router.route("/category/all").get(categoryController.getAllCategories).delete(categoryController.DeleteAllCategories);
