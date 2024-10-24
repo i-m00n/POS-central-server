@@ -130,8 +130,8 @@ export class CategoryController {
 
   async DeleteAllCategories(req: Request, res: Response, next: NextFunction) {
     try {
-      const result = await AppDataSource.transaction(async (transactionalEntityManager) => {
-        const deletedCategories = await CategoryRepository.deleteAllCategories(transactionalEntityManager);
+      await AppDataSource.transaction(async (transactionalEntityManager) => {
+        await CategoryRepository.deleteAllCategories(transactionalEntityManager);
         const rabbitMQ_message = {
           table: "category",
           action: "deleteAll",
@@ -141,14 +141,11 @@ export class CategoryController {
           RABBITMQ_CONFIG.exchange.broadcast,
           transactionalEntityManager
         );
-
-        return deletedCategories;
       });
 
       // Respond with the deleted category data
       res.status(200).json({
         message: "Category deleted successfully",
-        data: result,
       });
     } catch (error) {
       next(error);

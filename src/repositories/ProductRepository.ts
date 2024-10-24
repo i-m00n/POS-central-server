@@ -7,10 +7,21 @@ import { CreateProductDTO } from "../dtos/Product/CreateProductDTO";
 import { UpdateProductDataDTO } from "../dtos/Product/UpdateProductPriceDTO";
 import { DeleteProductDTO } from "../dtos/Product/DeleteProductDTO";
 import { CategoryRepository } from "./CategoryRepository";
+import { EntityManager } from "typeorm";
+import { CentralCategory } from "../entities/CategoryEntity";
 
 export const ProductRepository = AppDataSource.getRepository(CentralProduct).extend({
-  async updateProductData(dto: UpdateProductDataDTO): Promise<ProductResponseDTO> {
-    const product = await this.findOneBy({ name: dto.name });
+  getRepo(transactionalEntityManager?: EntityManager) {
+    return transactionalEntityManager ? transactionalEntityManager.getRepository(CentralProduct) : this;
+  },
+
+  async updateProductData(
+    dto: UpdateProductDataDTO,
+    transactionalEntityManager?: EntityManager
+  ): Promise<ProductResponseDTO> {
+    const repo = this.getRepo(transactionalEntityManager);
+
+    const product = await repo.findOneBy({ name: dto.name });
     if (!product) {
       throw new NotFoundError("Product not found");
     }
@@ -23,7 +34,7 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
       product.price = dto.price;
     }
 
-    const updatedProduct = await this.save(product);
+    const updatedProduct = await repo.save(product);
 
     ////// check for the rest of enitites
     const productResponseDTO: ProductResponseDTO = {
@@ -91,23 +102,31 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
     return productResponseDTO;
   },
 
-  async createProduct(productData: CreateProductDTO): Promise<ProductResponseDTO> {
+  async createProduct(
+    productData: CreateProductDTO,
+    transactionalEntityManager?: EntityManager
+  ): Promise<ProductResponseDTO> {
     //findone
-    const category = await CategoryRepository.findOne({
+    const productRepo = this.getRepo(transactionalEntityManager);
+    const categoryRepo = transactionalEntityManager
+      ? transactionalEntityManager.getRepository(CentralCategory)
+      : CategoryRepository;
+
+    const category = await categoryRepo.findOne({
       where: { name: productData.category },
     });
     if (!category) {
       throw new NotFoundError("Category not found");
     }
 
-    const product = this.create({
+    const product = productRepo.create({
       name: productData.name,
       measure: productData.measure,
       price: productData.price,
       category: category,
     });
 
-    const savedProduct = await this.save(product);
+    const savedProduct = await productRepo.save(product);
 
     const productResponseDTO: ProductResponseDTO = {
       id: savedProduct.id,
@@ -120,12 +139,14 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
     return productResponseDTO;
   },
 
-  async deleteProduct(dto: DeleteProductDTO): Promise<ProductResponseDTO> {
-    const product = await this.findOne({ where: { name: dto.name } });
+  async deleteProduct(dto: DeleteProductDTO, transactionalEntityManager?: EntityManager): Promise<ProductResponseDTO> {
+    const repo = this.getRepo(transactionalEntityManager);
+
+    const product = await repo.findOne({ where: { name: dto.name } });
     if (!product) {
       throw new NotFoundError("Product not found");
     }
-    await this.remove(product);
+    await repo.remove(product);
     const productResponseDTO: ProductResponseDTO = {
       id: product.id,
       name: product.name,
@@ -137,11 +158,13 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
     return productResponseDTO;
   },
 
-  async deleteAllProducts(): Promise<void> {
-    const products = await this.find();
+  async deleteAllProducts(transactionalEntityManager?: EntityManager): Promise<void> {
+    const repo = this.getRepo(transactionalEntityManager);
+
+    const products = await repo.find();
     if (products.length == 0) {
       throw new NotFoundError("No products to delete");
     }
-    await this.remove(products);
+    await repo.remove(products);
   },
 });

@@ -7,6 +7,9 @@ import { UpdateProductDataDTO } from "../dtos/Product/UpdateProductPriceDTO";
 import { DeleteProductDTO } from "../dtos/Product/DeleteProductDTO";
 import { NotFoundError } from "../utils/CustomError";
 import { RabbitMQPublisher } from "../message_brokers/rabbitmq.publisher";
+import { AppDataSource } from "../config/database.config";
+import { RABBITMQ_CONFIG } from "../config/rabbitmq.config";
+import { UnsentMessageRepository } from "../repositories/UnsentMessageRepository";
 export class ProductController {
   constructor() {
     this.createProduct = this.createProduct.bind(this);
@@ -19,19 +22,30 @@ export class ProductController {
 
   async createProduct(req: Request, res: Response, next: NextFunction) {
     try {
-      const productData: CreateProductDTO = req.body;
-      const product: ProductResponseDTO = await ProductRepository.createProduct(productData);
-      const rabbitMQ_message = {
-        table: "product",
-        action: "create",
-        data: productData,
-      };
-      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+      const result = await AppDataSource.transaction(async (transactionalEntityManager) => {
+        const productData: CreateProductDTO = req.body;
+        const product: ProductResponseDTO = await ProductRepository.createProduct(
+          productData,
+          transactionalEntityManager
+        );
+        const rabbitMQ_message = {
+          table: "product",
+          action: "create",
+          data: productData,
+        };
+        await UnsentMessageRepository.saveMessage(
+          rabbitMQ_message,
+          RABBITMQ_CONFIG.exchange.broadcast,
+          transactionalEntityManager
+        );
+
+        return product;
+      });
 
       res.status(201).json({
         message: "Product created successfully",
-        data: product,
-        productId: product.id,
+        data: result,
+        productId: result.id,
       });
     } catch (error) {
       next(error);
@@ -63,19 +77,27 @@ export class ProductController {
   }
   async updateProductData(req: Request, res: Response, next: NextFunction) {
     try {
-      const dto: UpdateProductDataDTO = req.body;
-      const product: ProductResponseDTO = await ProductRepository.updateProductData(dto);
+      const result = await AppDataSource.transaction(async (transactionalEntityManager) => {
+        const dto: UpdateProductDataDTO = req.body;
+        const product: ProductResponseDTO = await ProductRepository.updateProductData(dto, transactionalEntityManager);
 
-      const rabbitMQ_message = {
-        table: "product",
-        action: "updatePrice",
-        data: dto,
-      };
-      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+        const rabbitMQ_message = {
+          table: "product",
+          action: "updatePrice",
+          data: dto,
+        };
+        await UnsentMessageRepository.saveMessage(
+          rabbitMQ_message,
+          RABBITMQ_CONFIG.exchange.broadcast,
+          transactionalEntityManager
+        );
+
+        return product;
+      });
 
       res.status(200).json({
         message: "Product price updated successfully",
-        data: product,
+        data: result,
       });
     } catch (error) {
       next(error);
@@ -84,25 +106,33 @@ export class ProductController {
 
   async deleteProduct(req: Request, res: Response, next: NextFunction) {
     try {
-      const name = req.query.name as string;
+      const result = await AppDataSource.transaction(async (transactionalEntityManager) => {
+        const name = req.query.name as string;
 
-      if (!name) {
-        throw new NotFoundError("Product name is required");
-      }
-      const dto: DeleteProductDTO = { name };
+        if (!name) {
+          throw new NotFoundError("Product name is required");
+        }
+        const dto: DeleteProductDTO = { name };
 
-      const deletedCategory = await ProductRepository.deleteProduct(dto);
+        const deletedCategory = await ProductRepository.deleteProduct(dto);
 
-      const rabbitMQ_message = {
-        table: "product",
-        action: "deleteOne",
-        data: dto,
-      };
-      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+        const rabbitMQ_message = {
+          table: "product",
+          action: "deleteOne",
+          data: dto,
+        };
+        await UnsentMessageRepository.saveMessage(
+          rabbitMQ_message,
+          RABBITMQ_CONFIG.exchange.broadcast,
+          transactionalEntityManager
+        );
+
+        return deletedCategory;
+      });
 
       res.status(200).json({
         message: "Product deleted successfully",
-        data: deletedCategory,
+        data: result,
       });
     } catch (error) {
       next(error);
@@ -111,13 +141,19 @@ export class ProductController {
 
   async deleteAllProducts(req: Request, res: Response, next: NextFunction) {
     try {
-      await ProductRepository.deleteAllProducts();
+      await AppDataSource.transaction(async (transactionalEntityManager) => {
+        await ProductRepository.deleteAllProducts();
 
-      const rabbitMQ_message = {
-        table: "product",
-        action: "deleteAll",
-      };
-      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
+        const rabbitMQ_message = {
+          table: "product",
+          action: "deleteAll",
+        };
+        await UnsentMessageRepository.saveMessage(
+          rabbitMQ_message,
+          RABBITMQ_CONFIG.exchange.broadcast,
+          transactionalEntityManager
+        );
+      });
 
       res.status(200).json({
         message: "All products deleted successfully",
