@@ -4,12 +4,26 @@ import { CreateCustomerDTO } from "../dtos/Customer/CreateCustomerDTO";
 import { UpdateCustomerDataDTO } from "../dtos/Customer/UpdateCustomerDataDTO";
 import { GetFilteredCustomersDTO } from "../dtos/Customer/GetFilteredCustomersDTO";
 import { CustomerResponseDTO } from "../dtos/Customer/CustomerResponseDTO";
-import { NotFoundError } from "../utils/CustomError";
+import { ConflictError, NotFoundError } from "../utils/CustomError";
+import { EntityManager } from "typeorm";
 
 export const CustomerRepository = AppDataSource.getRepository(CentralCustomer).extend({
-  async updateCustomerData(dto: UpdateCustomerDataDTO): Promise<CustomerResponseDTO> {
-    const customer = await CustomerRepository.findOneBy({ phone_number: dto.phone_number });
+  getRepo(transactionalEntityManager?: EntityManager) {
+    return transactionalEntityManager ? transactionalEntityManager.getRepository(CentralCustomer) : this;
+  },
 
+  async updateCustomerData(
+    dto: UpdateCustomerDataDTO,
+    transactionalEntityManager?: EntityManager
+  ): Promise<CustomerResponseDTO> {
+    const repo = this.getRepo(transactionalEntityManager);
+
+    const customer = await repo.findOneBy({ phone_number: dto.phone_number });
+    const isCustomerExisted = await repo.findOneBy({ phone_number: dto.new_phone_number });
+
+    if (isCustomerExisted) {
+      throw new ConflictError(`Customer with phone number ${dto.phone_number} already exists.`);
+    }
     if (!customer) {
       throw new NotFoundError("Customer not found");
     }
@@ -28,7 +42,7 @@ export const CustomerRepository = AppDataSource.getRepository(CentralCustomer).e
       customer.class = dto.class;
     }
 
-    const updatedCustomer = await CustomerRepository.save(customer);
+    const updatedCustomer = await repo.save(customer);
 
     const customerResponseDTO: CustomerResponseDTO = {
       name: updatedCustomer.name,
@@ -40,9 +54,24 @@ export const CustomerRepository = AppDataSource.getRepository(CentralCustomer).e
     return customerResponseDTO;
   },
 
-  async createCustomer(dto: CreateCustomerDTO): Promise<CustomerResponseDTO> {
-    const customer = CustomerRepository.create(dto);
-    const savedCustomer = await CustomerRepository.save(customer);
+  async createCustomer(
+    dto: CreateCustomerDTO,
+    transactionalEntityManager?: EntityManager
+  ): Promise<CustomerResponseDTO> {
+    const repo = this.getRepo(transactionalEntityManager);
+
+    // First check if customer with this phone number already exists
+    const existingCustomer = await repo.findOne({
+      where: { phone_number: dto.phone_number },
+    });
+
+    if (existingCustomer) {
+      throw new ConflictError(`Customer with phone number ${dto.phone_number} already exists.`);
+    }
+
+    // If no existing customer found, create new one
+    const customer = repo.create(dto);
+    const savedCustomer = await repo.save(customer);
 
     const customerResponseDTO: CustomerResponseDTO = {
       name: savedCustomer.name,
@@ -95,14 +124,16 @@ export const CustomerRepository = AppDataSource.getRepository(CentralCustomer).e
 
     return customerResponseDTO;
   },
-  async deleteCustomerByName(name: string): Promise<CustomerResponseDTO> {
-    const customer = await CustomerRepository.findOneBy({ name });
+  async deleteCustomerByName(name: string, transactionalEntityManager?: EntityManager): Promise<CustomerResponseDTO> {
+    const repo = this.getRepo(transactionalEntityManager);
+
+    const customer = await repo.findOneBy({ name });
 
     if (!customer) {
       throw new NotFoundError("Customer not found");
     }
 
-    await CustomerRepository.remove(customer);
+    await repo.remove(customer);
 
     // Map to CustomerResponseDTO
     const customerResponseDTO: CustomerResponseDTO = {
@@ -115,11 +146,13 @@ export const CustomerRepository = AppDataSource.getRepository(CentralCustomer).e
     return customerResponseDTO;
   },
 
-  async deleteAllCustomers(): Promise<void> {
-    const customers = await CustomerRepository.find();
+  async deleteAllCustomers(transactionalEntityManager?: EntityManager): Promise<void> {
+    const repo = this.getRepo(transactionalEntityManager);
+
+    const customers = await repo.find();
     if (customers.length == 0) {
       throw new NotFoundError("no customers to delete");
     }
-    await CustomerRepository.remove(customers);
+    await repo.remove(customers);
   },
 });

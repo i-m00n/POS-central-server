@@ -6,6 +6,9 @@ import { GetFilteredCustomersDTO } from "../dtos/Customer/GetFilteredCustomersDT
 import { NotFoundError } from "../utils/CustomError";
 import { UpdateCustomerDataDTO } from "../dtos/Customer/UpdateCustomerDataDTO";
 import { RabbitMQPublisher } from "../message_brokers/rabbitmq.publisher";
+import { UnsentMessageRepository } from "../repositories/UnsentMessageRepository";
+import { RABBITMQ_CONFIG } from "../config/rabbitmq.config";
+import { AppDataSource } from "../config/database.config";
 export class CustomerController {
   constructor() {
     this.createCustomer = this.createCustomer.bind(this);
@@ -19,19 +22,25 @@ export class CustomerController {
   // 1. Create a new customer
   async createCustomer(req: Request, res: Response, next: NextFunction) {
     try {
-      const customerData: CreateCustomerDTO = req.body;
-      const customer: CustomerResponseDTO = await CustomerRepository.createCustomer(customerData);
+      const result = await AppDataSource.transaction(async (transactionalEntityManager) => {
+        const customerData: CreateCustomerDTO = req.body;
+        const customer: CustomerResponseDTO = await CustomerRepository.createCustomer(customerData);
 
-      const rabbitMQ_message = {
-        table: "customer",
-        action: "create",
-        data: customerData,
-      };
-      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
-
+        const rabbitMQ_message = {
+          table: "customer",
+          action: "create",
+          data: customerData,
+        };
+        await UnsentMessageRepository.saveMessage(
+          rabbitMQ_message,
+          RABBITMQ_CONFIG.exchange.broadcast,
+          transactionalEntityManager
+        );
+        return customer;
+      });
       res.status(201).json({
         message: "Customer created successfully",
-        data: customer,
+        data: result,
       });
     } catch (error) {
       next(error);
@@ -68,19 +77,25 @@ export class CustomerController {
   // 4. Update customer total paid
   async updateCustomerData(req: Request, res: Response, next: NextFunction) {
     try {
-      const dto: UpdateCustomerDataDTO = req.body;
-      const customer: CustomerResponseDTO = await CustomerRepository.updateCustomerData(dto);
+      const result = await AppDataSource.transaction(async (transactionalEntityManager) => {
+        const dto: UpdateCustomerDataDTO = req.body;
+        const customer: CustomerResponseDTO = await CustomerRepository.updateCustomerData(dto);
 
-      const rabbitMQ_message = {
-        table: "customer",
-        action: "updateTotalPaid",
-        data: dto,
-      };
-      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
-
+        const rabbitMQ_message = {
+          table: "customer",
+          action: "updateTotalPaid",
+          data: dto,
+        };
+        await UnsentMessageRepository.saveMessage(
+          rabbitMQ_message,
+          RABBITMQ_CONFIG.exchange.broadcast,
+          transactionalEntityManager
+        );
+        return customer;
+      });
       res.status(200).json({
         message: "Customer total paid updated successfully",
-        data: customer,
+        data: result,
       });
     } catch (error) {
       next(error);
@@ -90,24 +105,30 @@ export class CustomerController {
   // 5. Delete a customer
   async deleteCustomerByName(req: Request, res: Response, next: NextFunction) {
     try {
-      const name = req.query.name as string;
+      const result = await AppDataSource.transaction(async (transactionalEntityManager) => {
+        const name = req.query.name as string;
 
-      if (!name) {
-        throw new NotFoundError("Customer name is required");
-      }
+        if (!name) {
+          throw new NotFoundError("Customer name is required");
+        }
 
-      const deletedCustomer = await CustomerRepository.deleteCustomerByName(name);
+        const deletedCustomer = await CustomerRepository.deleteCustomerByName(name);
 
-      const rabbitMQ_message = {
-        table: "customer",
-        action: "deleteOne",
-        data: name,
-      };
-      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
-
+        const rabbitMQ_message = {
+          table: "customer",
+          action: "deleteOne",
+          data: name,
+        };
+        await UnsentMessageRepository.saveMessage(
+          rabbitMQ_message,
+          RABBITMQ_CONFIG.exchange.broadcast,
+          transactionalEntityManager
+        );
+        return deletedCustomer;
+      });
       res.status(200).json({
         message: "Customer deleted successfully",
-        data: deletedCustomer,
+        data: result,
       });
     } catch (error) {
       next(error);
@@ -117,14 +138,19 @@ export class CustomerController {
   // 6. Delete all customers
   async deleteAllCustomers(req: Request, res: Response, next: NextFunction) {
     try {
-      await CustomerRepository.deleteAllCustomers();
+      await AppDataSource.transaction(async (transactionalEntityManager) => {
+        await CustomerRepository.deleteAllCustomers();
 
-      const rabbitMQ_message = {
-        table: "customer",
-        action: "deleteAll",
-      };
-      await RabbitMQPublisher.broadcastMessage(rabbitMQ_message);
-
+        const rabbitMQ_message = {
+          table: "customer",
+          action: "deleteAll",
+        };
+        await UnsentMessageRepository.saveMessage(
+          rabbitMQ_message,
+          RABBITMQ_CONFIG.exchange.broadcast,
+          transactionalEntityManager
+        );
+      });
       res.status(200).json({
         message: "All customers deleted successfully",
       });
