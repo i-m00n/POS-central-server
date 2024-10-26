@@ -20,6 +20,12 @@ export class ConflictError extends CustomError {
   }
 }
 
+export class IncorrectPasswordError extends CustomError {
+  constructor(message: string = "Password incorrect") {
+    super(message, 401);
+  }
+}
+
 export class InternalServerError extends CustomError {
   constructor(message: string = "Internal Server Error") {
     super(message, 500);

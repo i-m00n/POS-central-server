@@ -3,14 +3,15 @@ import { ConfigController } from "../controllers/ConfigController";
 import { validationMiddleware } from "../middlewares/ValidationMiddleware";
 import { CreateConfigDTO } from "../dtos/config/CreateConfigDTO";
 import { UpdateConfigDTO } from "../dtos/config/UpdateConfigDTO";
+import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = Router();
 const configController = new ConfigController();
 
-router.get("/config/:key", configController.getConfigByKey);
+router.get("/config/:key", authMiddleware, configController.getConfigByKey);
 router
   .route("/config")
-  .post(validationMiddleware(CreateConfigDTO), configController.createConfig)
-  .put(validationMiddleware(UpdateConfigDTO), configController.updateConfigValue);
+  .post(authMiddleware, validationMiddleware(CreateConfigDTO), configController.createConfig)
+  .put(authMiddleware, validationMiddleware(UpdateConfigDTO), configController.updateConfigValue);
 
 export default router;

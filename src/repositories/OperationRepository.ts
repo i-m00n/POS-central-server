@@ -32,7 +32,7 @@ export const OperationRepository = AppDataSource.getRepository(CentralOperation)
       where: { id: operationData.order_id },
     });
     const product = await ProductRepository.findOne({
-      where: { id: operationData.product_id },
+      where: { name: operationData.product_name },
     });
 
     if (!order) {
@@ -40,7 +40,7 @@ export const OperationRepository = AppDataSource.getRepository(CentralOperation)
     }
 
     if (!product) {
-      throw new NotFoundError(`Product not found with id: ${operationData.product_id}`);
+      throw new NotFoundError(`Product not found with name: ${operationData.product_name}`);
     }
 
     const total_price = parseFloat(operationData.total_price);

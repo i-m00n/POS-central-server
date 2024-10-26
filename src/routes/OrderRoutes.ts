@@ -4,13 +4,19 @@ import { validationMiddleware } from "../middlewares/ValidationMiddleware";
 import { OrderResponseDTO } from "../dtos/Order/OrderResponseDTO";
 import { CreateOrderDTO } from "../dtos/Order/CreateOrderDTO";
 import { GetFilteredOrderDTO } from "../dtos/Order/GetFilteredOrderDTO";
+import { authMiddleware } from "../middlewares/authMiddleware";
 
 const router = Router();
 const orderController = new OrderController();
 
-router.route("/order").post(validationMiddleware(CreateOrderDTO), orderController.createOrder);
+router.route("/order").post(authMiddleware, validationMiddleware(CreateOrderDTO), orderController.createOrder);
 
-router.route("/order/all").get(orderController.getAllOrders);
-router.get("/order/filter", validationMiddleware(GetFilteredOrderDTO), orderController.getFilteredOrders);
+router.get("/order/all", authMiddleware, orderController.getAllOrders);
+router.get(
+  "/order/filter",
+  authMiddleware,
+  validationMiddleware(GetFilteredOrderDTO),
+  orderController.getFilteredOrders
+);
 
 export default router;

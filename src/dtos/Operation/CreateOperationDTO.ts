@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import { IsNumber, IsDecimal, IsNotEmpty, IsPositive } from "class-validator";
+import { IsNumber, IsDecimal, IsNotEmpty, IsPositive, IsString } from "class-validator";
 
 export class CreateOperationDTO {
   @IsNumber()
@@ -16,7 +16,7 @@ export class CreateOperationDTO {
   @IsNotEmpty()
   order_id: number;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  product_id: number;
+  product_name: string;
 }

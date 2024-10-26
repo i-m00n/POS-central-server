@@ -48,7 +48,7 @@ export class RabbitMQConsumer {
                     quantity: operationData.quantity,
                     total_price: operationData.total_price,
                     order_id: orderResponse.id,
-                    product_id: operationData.product_id,
+                    product_name: operationData.name,
                   };
 
                   await OperationRepository.createOperation(createOperationDTO);

@@ -41,6 +41,7 @@ export class OrderController {
     try {
       const orderData: CreateOrderDTO = req.body;
       const order: OrderResponseDTO = await OrderRepository.createOrder(orderData);
+
       res.status(201).json({
         message: "Order created successfully",
         data: order,

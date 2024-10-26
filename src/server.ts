@@ -12,13 +12,14 @@ import { errorHandler } from "./middlewares/ErrorHandler";
 import { RabbitMQConsumer } from "./message_brokers/rabbitmq.consumer";
 import cors from "cors";
 import { RabbitMQPublisher } from "./message_brokers/rabbitmq.publisher";
-import { error } from "console";
+import authRoutes from "./routes/auth";
 
 const app = express();
 const port = 4000;
 app.use(bodyParser.json());
 app.use(cors());
 
+app.use("/api/auth", authRoutes);
 app.use("/api", ProductRoutes);
 app.use("/api", CustomerRoutes);
 app.use("/api", OrderRoutes);
