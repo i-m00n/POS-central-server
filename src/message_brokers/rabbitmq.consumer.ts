@@ -5,6 +5,7 @@ import { OrderRepository } from "../repositories/OrderRepository";
 import { CreateOperationDTO } from "../dtos/Operation/CreateOperationDTO";
 import { OperationRepository } from "../repositories/OperationRepository";
 import { NotFoundError } from "../utils/CustomError";
+import { CentralDataService } from "../services/syncDataWithLocal";
 export class RabbitMQConsumer {
   static async listenToLocalServers() {
     try {
@@ -55,6 +56,14 @@ export class RabbitMQConsumer {
                 }
 
                 console.log("Order and operations created successfully.");
+              } catch (error) {
+                console.error("Error processing message:", error);
+              } finally {
+                channel.ack(message);
+              }
+            } else if (table == "category" && action == "sync") {
+              try {
+                await CentralDataService.syncDataWithLocal();
               } catch (error) {
                 console.error("Error processing message:", error);
               } finally {
