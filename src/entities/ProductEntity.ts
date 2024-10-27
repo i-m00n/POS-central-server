@@ -20,6 +20,6 @@ export class CentralProduct {
   @JoinColumn({ name: "category_id" })
   category: CentralCategory;
 
-  @OneToMany(() => CentralOperation, (operation) => operation.product, { onDelete: "SET NULL" })
+  @OneToMany(() => CentralOperation, (operation) => operation.product, { onDelete: "CASCADE" })
   operations: CentralOperation[];
 }
