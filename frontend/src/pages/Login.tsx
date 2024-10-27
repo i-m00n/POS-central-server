@@ -7,7 +7,7 @@ function Login({ onLogin }: { onLogin?: () => void }) {
   const [alert,setAlert] = useState<boolean>(false);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-      fetch("http://localhost:4000/api/auth/login",
+      fetch("/api/auth/login",
         {
           method:"POST",
           headers:{
