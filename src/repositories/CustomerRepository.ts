@@ -21,7 +21,7 @@ export const CustomerRepository = AppDataSource.getRepository(CentralCustomer).e
     const customer = await repo.findOneBy({ phone_number: dto.phone_number });
     const existingCustomer = await repo.findOneBy({ phone_number: dto.new_phone_number });
 
-    if (existingCustomer) {
+    if (existingCustomer && dto.phone_number != dto.new_phone_number) {
       throw new ConflictError(`Customer with phone number ${dto.new_phone_number} already exists.`);
     }
     if (!customer) {
