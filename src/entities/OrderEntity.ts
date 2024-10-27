@@ -31,7 +31,7 @@ export class CentralOrder {
   @Column()
   date: Date;
 
-  @ManyToOne(() => CentralCustomer, (customer) => customer.orders, { onDelete: "SET NULL" })
+  @ManyToOne(() => CentralCustomer, (customer) => customer.orders, { onDelete: "CASCADE" })
   @JoinColumn({ name: "customer_phone_number" })
   customer: CentralCustomer;
 

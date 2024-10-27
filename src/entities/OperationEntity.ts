@@ -13,11 +13,11 @@ export class CentralOperation {
   @Column("decimal", { precision: 10, scale: 2 })
   total_price: number;
 
-  @ManyToOne(() => CentralOrder, (order) => order.operations)
+  @ManyToOne(() => CentralOrder, (order) => order.operations, { onDelete: "CASCADE" })
   @JoinColumn({ name: "order_id" })
   order: CentralOrder;
 
-  @ManyToOne(() => CentralProduct, (product) => product.operations, { nullable: true, onDelete: "SET NULL" })
+  @ManyToOne(() => CentralProduct, (product) => product.operations, { onDelete: "CASCADE" })
   @JoinColumn({ name: "product_id" })
   product: CentralProduct | null;
 }
