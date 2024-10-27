@@ -35,6 +35,6 @@ export class CentralOrder {
   @JoinColumn({ name: "customer_phone_number" })
   customer: CentralCustomer;
 
-  @OneToMany(() => CentralOperation, (operation) => operation.order)
+  @OneToMany(() => CentralOperation, (operation) => operation.order, { onDelete: "CASCADE" })
   operations: CentralOperation[];
 }
