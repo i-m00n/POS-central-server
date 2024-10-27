@@ -7,7 +7,7 @@ export default function Sales() {
   const [soldOrders,SetSoldOrders]=useState<Order[]>([]);
   useEffect(
     ()=>{
-      fetch("http://localhost:4000/api/order/filter?order_type=بيع",
+      fetch("/api/order/filter?order_type=بيع",
         {
           headers:{
             "Content-type":"application/json",

@@ -11,7 +11,6 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
 
-  // Set token expiration time (e.g., 3600 seconds or fetch actual expiration from login response)
   useEffect(() => {
     // Check for existing auth token
     const token = localStorage.getItem('authToken');

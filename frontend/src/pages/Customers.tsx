@@ -11,7 +11,7 @@ export default function Customers() {
   const [customers,SetCustomers]=useState<Customer[]>([]);
   useEffect(
     ()=>{
-      fetch("http://localhost:4000/api/customer/all",{
+      fetch("/api/customer/all",{
         headers:{
           "Authorization": `Bearer ${localStorage.getItem("authToken")}`
         }

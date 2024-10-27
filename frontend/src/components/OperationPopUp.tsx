@@ -12,7 +12,7 @@ export default function OperationPopUp({navigation_part}:OperationProp) {
 
   useEffect(() => {
     if (params.orderID)
-      fetch(`http://localhost:4000/api/operation/${params.orderID}`,
+      fetch(`/api/operation/${params.orderID}`,
     {
       headers:{
         "Authorization": `Bearer ${localStorage.getItem("authToken")}`

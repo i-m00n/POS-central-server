@@ -7,7 +7,7 @@ export default function AllSales() {
   const [allOrders, setAllOrders] = useState<Order[]>([]);
  
   useEffect(() => {
-    fetch("http://localhost:4000/api/order/all",
+    fetch("/api/order/all",
       {
        headers:{
           "Authorization": `Bearer ${localStorage.getItem("authToken")}`

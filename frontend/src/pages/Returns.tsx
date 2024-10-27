@@ -7,7 +7,7 @@ export default function Returns() {
   const [returnedOrders,SetReturnedOrders]=useState<Order[]>([]);
   useEffect(
     ()=>{
-      fetch("http://localhost:4000/api/order/filter?order_type=استرجاع",{
+      fetch("/api/order/filter?order_type=استرجاع",{
         headers:{
           "Authorization": `Bearer ${localStorage.getItem("authToken")}`
         }

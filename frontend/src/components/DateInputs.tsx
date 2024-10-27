@@ -26,7 +26,7 @@ export default function DateInputs({setItems,type}:DateInputsProp) {
       }} />
     </div>
     <button className="bg-paleOrange p-2 rounded-md" onClick={()=>{
-      fetch(`http://localhost:4000/api/order/filter?${type&&`order_type=${type}`}&start_date=${startDate}&end_date=${endDate}`,
+      fetch(`/api/order/filter?${type&&`order_type=${type}`}&start_date=${startDate}&end_date=${endDate}`,
         {
           headers:{
             "Authorization": `Bearer ${localStorage.getItem("authToken")}`

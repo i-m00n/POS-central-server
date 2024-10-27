@@ -14,7 +14,7 @@ export default function CreateCategory({setCategories}:categoriesProp) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:4000/api/category`, {
+      const response = await fetch(`/api/category`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

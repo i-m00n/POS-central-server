@@ -9,7 +9,7 @@ interface customerTableProps{
 }
 export default function CustomerTable({customers,setCustomers}:customerTableProps) {
   const handleDeleteCustomer = (name:string)=>{
-      fetch(`http://localhost:4000/api/customer?name=${name}`,
+      fetch(`/api/customer?name=${name}`,
         {
           method:"DELETE",
           headers:{
@@ -23,7 +23,7 @@ export default function CustomerTable({customers,setCustomers}:customerTableProp
       })
   }
   const handleDeleteAllCustomers= ()=>{
-    fetch(`http://localhost:4000/api/customer/all`,
+    fetch(`/api/customer/all`,
     {
       method:"DELETE",
       headers:{

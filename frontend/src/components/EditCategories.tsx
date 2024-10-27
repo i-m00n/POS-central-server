@@ -14,7 +14,7 @@ export default function EditCategories({category,setCategories}:editProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-          const response = await fetch(`http://localhost:4000/api/category`, {
+          const response = await fetch(`/api/category`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',

@@ -39,7 +39,7 @@ export default function CustomerFilterInputs({setItems}:CustomerFilterInputsProp
       }} />
     </div>
     <button className="bg-paleOrange p-2 rounded-md" onClick={()=>{
-      fetch(`http://localhost:4000/api/customer/filter?${name&&`name=${name}&&`}${classType&&`class=${classType}&&`}${phone_number&&`phone_number=${phone_number}`}`,
+      fetch(`/api/customer/filter?${name&&`name=${name}&&`}${classType&&`class=${classType}&&`}${phone_number&&`phone_number=${phone_number}`}`,
         {
           headers:{
             "Authorization": `Bearer ${localStorage.getItem("authToken")}`

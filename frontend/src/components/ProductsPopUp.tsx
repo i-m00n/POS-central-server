@@ -32,7 +32,7 @@ export default function ProductPopUp() {
       }
     }, [alert.bool]);
     const handleDeleteProduct = (productName: string) => {
-      fetch(`http://localhost:4000/api/product?name=${productName}`, {
+      fetch(`/api/product?name=${productName}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -78,7 +78,7 @@ export default function ProductPopUp() {
 
     
     const handleDeleteAllProduct = ()=>{
-      fetch(`http://localhost:4000/api/product/all`,
+      fetch(`/api/product/all`,
         {
           method:"DELETE",
           headers:{

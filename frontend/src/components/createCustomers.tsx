@@ -18,7 +18,7 @@ export default function CreateCustomerDialog({ setCustomers }: CreateCustomerDia
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`http://localhost:4000/api/customer`, {
+      const response = await fetch(`/api/customer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

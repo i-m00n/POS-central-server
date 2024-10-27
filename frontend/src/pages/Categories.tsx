@@ -21,7 +21,7 @@ export default function Categories() {
   const [categories,setCategories] = useState<categories[]>([]);
   const[selectedCategoryProduct,setSelectedCategoryProduct] = useState<categories>((JSON.parse(localStorage.getItem("selectedProduct") || ""))||{name:"",products:[]});
   useEffect(()=>{
-    fetch("http://localhost:4000/api/category/all",
+    fetch("/api/category/all",
       {
         headers:{
           "Authorization": `Bearer ${localStorage.getItem("authToken")}`
@@ -48,7 +48,7 @@ export default function Categories() {
       navigate(`/${navigation_part}`);
     }
     const handleDeleteCategory= (name:string)=>{
-        fetch(`http://localhost:4000/api/category?name=${name}`,
+        fetch(`/api/category?name=${name}`,
           {
             method:"DELETE"
             ,headers:{
@@ -67,7 +67,7 @@ export default function Categories() {
           })
         }
     const handleDeleteAllCategories= ()=>{
-        fetch(`http://localhost:4000/api/category/all`,
+        fetch(`/api/category/all`,
           {
             method:"DELETE"
             ,headers:{
