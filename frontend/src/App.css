@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Ruwudu:wght@400;500;600;700&display=swap');
+.text-arabic{
+  font-family: "Aref Ruqaa", serif;
+}
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
