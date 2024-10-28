@@ -19,7 +19,17 @@ export interface categories{
 export default function Categories() {
 
   const [categories,setCategories] = useState<categories[]>([]);
-  const[selectedCategoryProduct,setSelectedCategoryProduct] = useState<categories>((JSON.parse(localStorage.getItem("selectedProduct") || ""))||{name:"",products:[]});
+  const [selectedCategoryProduct, setSelectedCategoryProduct] = useState<categories>(
+    (() => {
+      try {
+        const stored = localStorage.getItem("selectedProduct");
+        return stored ? JSON.parse(stored) : {name: "", products: []};
+      } catch (err) {
+        console.log(err);
+        return {name: "", products: []};
+      }
+    })()
+  );
   useEffect(()=>{
     fetch("/api/category/all",
       {
