@@ -6,6 +6,9 @@ import { CreateOperationDTO } from "../dtos/Operation/CreateOperationDTO";
 import { OperationRepository } from "../repositories/OperationRepository";
 import { NotFoundError } from "../utils/CustomError";
 import { CentralDataService } from "../services/syncDataWithLocal";
+import { CustomerRepository } from "../repositories/CustomerRepository";
+import { UpdateCustomerDataDTO } from "../dtos/Customer/UpdateCustomerDataDTO";
+import { ProductRepository } from "../repositories/ProductRepository";
 export class RabbitMQConsumer {
   static async listenToLocalServers() {
     try {
@@ -39,11 +42,13 @@ export class RabbitMQConsumer {
                   customer_phone_number,
                 };
 
+                // Create the order
                 const orderResponse = await OrderRepository.createOrder(createOrderDTO);
                 if (!orderResponse.id) {
                   throw new Error("Order ID not found.");
                 }
 
+                // Create the operations linked to this order
                 for (const operationData of operations) {
                   const createOperationDTO: CreateOperationDTO = {
                     quantity: operationData.quantity,
@@ -55,7 +60,17 @@ export class RabbitMQConsumer {
                   await OperationRepository.createOperation(createOperationDTO);
                 }
 
-                console.log("Order and operations created successfully.");
+                // Update customer's total paid amount
+                const updatedCustomerTotal = total_price; // Adjust this based on how you want to calculate total paid
+
+                const updateCustomerDataDTO: UpdateCustomerDataDTO = {
+                  phone_number: customer_phone_number,
+                  total_paid: updatedCustomerTotal,
+                };
+
+                await CustomerRepository.updateCustomerData(updateCustomerDataDTO);
+
+                console.log("Order, operations, and customer total paid updated successfully.");
               } catch (error) {
                 console.error("Error processing message:", error);
               } finally {
