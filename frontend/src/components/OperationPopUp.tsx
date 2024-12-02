@@ -9,10 +9,11 @@ export default function OperationPopUp({navigation_part}:OperationProp) {
   const params = useParams();
   const navigate = useNavigate();
   const [operations, setOperations] = useState<OperationResponseDTO[]>([]);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     if (params.orderID)
-      fetch(`/api/operation/${params.orderID}`,
+      fetch(`${API_BASE_URL}operation/${params.orderID}`,
     {
       headers:{
         "Authorization": `Bearer ${localStorage.getItem("authToken")}`

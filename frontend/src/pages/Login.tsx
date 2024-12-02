@@ -5,10 +5,10 @@ function Login({ onLogin }: { onLogin?: () => void }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [alert, setAlert] = useState<boolean>(false);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    fetch("http://localhost:4000/api/auth/login", {
+    fetch(`${API_BASE_URL}auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -5,9 +5,11 @@ import DateInputs from '../components/DateInputs';
 
 export default function Returns() {
   const [returnedOrders,SetReturnedOrders]=useState<Order[]>([]);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(
     ()=>{
-      fetch("/api/order/filter?order_type=استرجاع",{
+      fetch(`${API_BASE_URL}order/filter?order_type=استرجاع`,{
         headers:{
           "Authorization": `Bearer ${localStorage.getItem("authToken")}`
         }

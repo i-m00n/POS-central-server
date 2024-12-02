@@ -11,10 +11,12 @@ export default function EditCategories({category,setCategories}:editProps) {
     const [formData, setFormData] = useState({
       name: category.name,
     });
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-          const response = await fetch(`/api/category`, {
+          const response = await fetch(`${API_BASE_URL}category`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',

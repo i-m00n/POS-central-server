@@ -5,9 +5,10 @@ import DateInputs from "../components/DateInputs";
 
 export default function AllSales() {
   const [allOrders, setAllOrders] = useState<Order[]>([]);
- 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
-    fetch("/api/order/all",
+    fetch(`${API_BASE_URL}order/all`,
       {
        headers:{
           "Authorization": `Bearer ${localStorage.getItem("authToken")}`

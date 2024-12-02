@@ -25,6 +25,7 @@ export default function ProductPopUp() {
     const [alert,setAlert]= useState<DeleteProductAlert>({bool:false,deleteType:""});
     const [selectedItemToDelete,setSelectedItemToDelete]= useState<string>("");
     const alertRef = useRef<HTMLDivElement>(null);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     useEffect(() => {
       if (alert.bool && alertRef.current) {
@@ -32,7 +33,7 @@ export default function ProductPopUp() {
       }
     }, [alert.bool]);
     const handleDeleteProduct = (productName: string) => {
-      fetch(`/api/product?name=${productName}`, {
+      fetch(`${API_BASE_URL}product?name=${productName}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -78,7 +79,7 @@ export default function ProductPopUp() {
 
     
     const handleDeleteAllProduct = ()=>{
-      fetch(`/api/product/all`,
+      fetch(`${API_BASE_URL}product/all`,
         {
           method:"DELETE",
           headers:{

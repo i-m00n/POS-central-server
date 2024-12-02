@@ -8,8 +8,10 @@ interface customerTableProps{
     setCustomers: Dispatch<SetStateAction<Customer[]>>
 }
 export default function CustomerTable({customers,setCustomers}:customerTableProps) {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const handleDeleteCustomer = (name:string)=>{
-      fetch(`/api/customer?name=${name}`,
+      fetch(`${API_BASE_URL}customer?name=${name}`,
         {
           method:"DELETE",
           headers:{
@@ -23,7 +25,7 @@ export default function CustomerTable({customers,setCustomers}:customerTableProp
       })
   }
   const handleDeleteAllCustomers= ()=>{
-    fetch(`/api/customer/all`,
+    fetch(`${API_BASE_URL}customer/all`,
     {
       method:"DELETE",
       headers:{

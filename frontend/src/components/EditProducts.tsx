@@ -18,10 +18,12 @@ export default function EditProducts({selectedName,selectedPrice,selectedCategor
         name: selectedName,
         price:selectedPrice
     });
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-          const response = await fetch(`http://localhost:4000/api/product`, {
+          const response = await fetch(`${API_BASE_URL}product`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',

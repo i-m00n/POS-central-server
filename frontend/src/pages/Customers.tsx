@@ -9,9 +9,11 @@ interface customerResponse{
 
 export default function Customers() {
   const [customers,SetCustomers]=useState<Customer[]>([]);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(
     ()=>{
-      fetch("/api/customer/all",{
+      fetch(`${API_BASE_URL}customer/all`,{
         headers:{
           "Authorization": `Bearer ${localStorage.getItem("authToken")}`
         }

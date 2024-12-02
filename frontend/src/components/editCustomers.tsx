@@ -17,11 +17,12 @@ export default function EditCustomerDialog({ customer, setCustomers }: EditCusto
     total_paid: customer.total_paid,
     class: customer.class
   });
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`/api/customer`, {
+      const response = await fetch(`${API_BASE_URL}customer`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

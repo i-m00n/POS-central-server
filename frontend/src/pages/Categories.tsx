@@ -19,6 +19,7 @@ export interface categories{
 export default function Categories() {
 
   const [categories,setCategories] = useState<categories[]>([]);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [selectedCategoryProduct, setSelectedCategoryProduct] = useState<categories>(
     (() => {
       try {
@@ -31,7 +32,7 @@ export default function Categories() {
     })()
   );
   useEffect(()=>{
-    fetch("http://localhost:4000/api/category/all",
+    fetch(`${API_BASE_URL}category/all`,
       {
         headers:{
           "Authorization": `Bearer ${localStorage.getItem("authToken")}`
@@ -57,8 +58,9 @@ export default function Categories() {
     const handleClosePopup = (navigation_part:string) => {
       navigate(`/${navigation_part}`);
     }
+
     const handleDeleteCategory= (name:string)=>{
-        fetch(`/api/category?name=${name}`,
+        fetch(`${API_BASE_URL}category?name=${name}`,
           {
             method:"DELETE"
             ,headers:{
@@ -77,7 +79,7 @@ export default function Categories() {
           })
         }
     const handleDeleteAllCategories= ()=>{
-        fetch(`/api/category/all`,
+        fetch(`${API_BASE_URL}category/all`,
           {
             method:"DELETE"
             ,headers:{

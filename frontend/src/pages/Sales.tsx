@@ -5,9 +5,11 @@ import DateInputs from '../components/DateInputs';
 
 export default function Sales() {
   const [soldOrders,SetSoldOrders]=useState<Order[]>([]);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(
     ()=>{
-      fetch("/api/order/filter?order_type=بيع",
+      fetch(`${API_BASE_URL}order/filter?order_type=بيع`,
         {
           headers:{
             "Content-type":"application/json",
