@@ -20,11 +20,6 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
     transactionalEntityManager?: EntityManager
   ): Promise<ProductResponseDTO> {
     const repo = this.getRepo(transactionalEntityManager);
-    const existingProduct = await repo.findOneBy({ name: dto.new_name });
-
-    if (existingProduct) {
-      throw new ConflictError(`Product with name ${dto.new_name} already exists.`);
-    }
 
     const product = await repo.findOneBy({ name: dto.name });
     if (!product) {
