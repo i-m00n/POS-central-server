@@ -25,7 +25,7 @@ export const CustomerRepository = AppDataSource.getRepository(CentralCustomer).e
     }
 
     if (dto.total_paid !== undefined) {
-      customer.total_paid = dto.total_paid;
+      customer.total_paid = Number(customer.total_paid) + Number(dto.total_paid);
     }
     if (dto.name !== undefined) {
       customer.name = dto.name;
