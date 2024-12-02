@@ -16,7 +16,7 @@ export default function CreateProduct({setCategories,category}:createProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-          const response = await fetch(`/api/product`, {
+          const response = await fetch(`http://localhost:4000/api/product`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

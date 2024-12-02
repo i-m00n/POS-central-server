@@ -21,7 +21,7 @@ export default function EditProducts({selectedName,selectedPrice,selectedCategor
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-          const response = await fetch(`/api/product`, {
+          const response = await fetch(`http://localhost:4000/api/product`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
@@ -29,7 +29,7 @@ export default function EditProducts({selectedName,selectedPrice,selectedCategor
             },
             body: JSON.stringify({
                 name:selectedName,
-                price:formData.price,
+                price:Number(formData.price).toFixed(2),
                 new_name:formData.name
             }),
           });
@@ -106,6 +106,7 @@ export default function EditProducts({selectedName,selectedPrice,selectedCategor
             <label className="block text-gray-100 text-sm sm:text-base text-right">سعر المنتج</label>
             <input
               value={formData.price}
+              type='number'
               onChange={(e) => setFormData({ ...formData, price: +e.target.value })}
               className="w-full p-1.5 sm:p-2 rounded text-sm sm:text-base bg-realyDarkGray text-gray-100 border border-lighterGray focus:border-paleOrange outline-none"
             />

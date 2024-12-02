@@ -31,7 +31,7 @@ export default function Categories() {
     })()
   );
   useEffect(()=>{
-    fetch("/api/category/all",
+    fetch("http://localhost:4000/api/category/all",
       {
         headers:{
           "Authorization": `Bearer ${localStorage.getItem("authToken")}`
