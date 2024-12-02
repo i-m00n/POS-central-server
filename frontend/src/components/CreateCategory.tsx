@@ -26,7 +26,7 @@ export default function CreateCategory({setCategories}:categoriesProp) {
 
       const data = await response.json();
       if (response.ok) {
-        setCategories((prevCategories:categories[]) => [...prevCategories, data.data]);
+        setCategories((prevCategories:categories[]) => [...(prevCategories||[]), data.data]);
         setIsOpen(false);
         setFormData({
           name: '',

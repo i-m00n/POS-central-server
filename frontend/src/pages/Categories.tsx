@@ -113,7 +113,7 @@ return (
         <tbody className="text-[10px] sm:text-xs lg:text-lg">
           {!categories?
   
-              <div>LOADING</div>    
+              <div className='p-2'>لا يوجد فئات</div>    
           :
           categories.map((item,i) => (
             <tr key={i} className={`bg-white border-b ${i % 2 == 0 ? "bg-bg-color" : "bg-paleBlack"}`}>

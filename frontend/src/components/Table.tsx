@@ -53,7 +53,7 @@ return (
                   </button>
                 </td>
               </tr>
-            )) : <tr>No Data</tr>}
+            )) : <tr>لا يوجد عمليات</tr>}
           </tbody>
         </table>
 
