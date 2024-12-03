@@ -14,6 +14,7 @@ export const CustomerRepository = AppDataSource.getRepository(CentralCustomer).e
 
   async updateCustomerData(
     dto: UpdateCustomerDataDTO,
+    totalpaid_overwrite: boolean,
     transactionalEntityManager?: EntityManager
   ): Promise<CustomerResponseDTO> {
     const repo = this.getRepo(transactionalEntityManager);
@@ -25,7 +26,8 @@ export const CustomerRepository = AppDataSource.getRepository(CentralCustomer).e
     }
 
     if (dto.total_paid !== undefined) {
-      customer.total_paid = Number(customer.total_paid) + Number(dto.total_paid);
+      if (totalpaid_overwrite) customer.total_paid = Number(dto.total_paid);
+      else customer.total_paid = Number(customer.total_paid) + Number(dto.total_paid);
     }
     if (dto.name !== undefined) {
       customer.name = dto.name;

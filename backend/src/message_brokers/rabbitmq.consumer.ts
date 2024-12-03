@@ -9,6 +9,7 @@ import { CentralDataService } from "../services/syncDataWithLocal";
 import { CustomerRepository } from "../repositories/CustomerRepository";
 import { UpdateCustomerDataDTO } from "../dtos/Customer/UpdateCustomerDataDTO";
 import { ProductRepository } from "../repositories/ProductRepository";
+import { order_type_enum } from "../enums/databaseEnums";
 export class RabbitMQConsumer {
   static async listenToLocalServers() {
     try {
@@ -61,14 +62,18 @@ export class RabbitMQConsumer {
                 }
 
                 // Update customer's total paid amount
-                const updatedCustomerTotal = total_price; // Adjust this based on how you want to calculate total paid
+                let total_price_val = total_price;
+                if (createOrderDTO.order_type == order_type_enum.RETURN) {
+                  total_price_val = -total_price_val;
+                }
+                const updatedCustomerTotal = total_price_val; // Adjust this based on how you want to calculate total paid
 
                 const updateCustomerDataDTO: UpdateCustomerDataDTO = {
                   phone_number: customer_phone_number,
                   total_paid: updatedCustomerTotal,
                 };
 
-                await CustomerRepository.updateCustomerData(updateCustomerDataDTO);
+                await CustomerRepository.updateCustomerData(updateCustomerDataDTO, false);
 
                 console.log("Order, operations, and customer total paid updated successfully.");
               } catch (error) {

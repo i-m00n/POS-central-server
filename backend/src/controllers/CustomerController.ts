@@ -79,7 +79,7 @@ export class CustomerController {
     try {
       const result = await AppDataSource.transaction(async (transactionalEntityManager) => {
         const dto: UpdateCustomerDataDTO = req.body;
-        const customer: CustomerResponseDTO = await CustomerRepository.updateCustomerData(dto);
+        const customer: CustomerResponseDTO = await CustomerRepository.updateCustomerData(dto, true);
 
         const rabbitMQ_message = {
           table: "customer",
