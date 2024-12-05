@@ -10,7 +10,7 @@ export default function RightNavbar({ isOpen, onClose }:navbarProps) {
     <>
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-90 lg:hidden z-20"
+          className="fixed inset-0 bg-lighterGray bg-opacity-90 lg:hidden z-20"
           onClick={onClose}
         />
       )}
@@ -39,14 +39,15 @@ export default function RightNavbar({ isOpen, onClose }:navbarProps) {
         '>
           <ul className='
             flex flex-col 
-            text-base sm:text-lg lg:text-2xl 
+              sm:text-lg lg:text-2xl 
             gap-4 sm:gap-6 
             p-4 sm:p-6 
             h-full
+            font-bold
           '>
-            <li className='mt-12 lg:mt-0'>
+            <li className='mt-12 lg:mt-0 '>
               <NavLink
-                className={({isActive}) => `nav-link block py-2 ${isActive ? 'text-whi' : 'text-paleGray'}`}
+                className={({isActive}) => `nav-link block py-2 ${isActive ? 'text-whi' : 'text-darkOrange'}`}
                 to={`/all-sales`}
                 onClick={onClose}
               >
@@ -55,7 +56,7 @@ export default function RightNavbar({ isOpen, onClose }:navbarProps) {
             </li>
             <li>
               <NavLink
-                className={({isActive}) => `nav-link block py-2 ${isActive ? 'text-whi' : 'text-paleGray'}`}
+                className={({isActive}) => `nav-link block py-2 ${isActive ? 'text-whi' : 'text-darkOrange'}`}
                 to={`/sales`}
                 onClick={onClose}
               >
@@ -64,7 +65,7 @@ export default function RightNavbar({ isOpen, onClose }:navbarProps) {
             </li>
             <li>
               <NavLink
-                className={({isActive}) => `nav-link block py-2 ${isActive ? 'text-whi' : 'text-paleGray'}`}
+                className={({isActive}) => `nav-link block py-2 ${isActive ? 'text-whi' : 'text-darkOrange'}`}
                 to={`/returns`}
                 onClick={onClose}
               >
@@ -73,7 +74,7 @@ export default function RightNavbar({ isOpen, onClose }:navbarProps) {
             </li>
             <li>
               <NavLink
-                className={({isActive}) => `nav-link block py-2 ${isActive ? 'text-whi' : 'text-paleGray'}`}
+                className={({isActive}) => `nav-link block py-2 ${isActive ? 'text-whi' : 'text-darkOrange'}`}
                 to={`/categories`}
                 onClick={onClose}
               >
@@ -82,7 +83,7 @@ export default function RightNavbar({ isOpen, onClose }:navbarProps) {
             </li>
             <li>
               <NavLink
-                className={({isActive}) => `nav-link block py-2 ${isActive ? 'text-whi' : 'text-paleGray'}`}
+                className={({isActive}) => `nav-link block py-2 ${isActive ? 'text-whi' : 'text-darkOrange'}`}
                 to={`/customers`}
                 onClick={onClose}
               >
