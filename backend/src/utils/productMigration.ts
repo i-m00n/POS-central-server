@@ -6,22 +6,19 @@ import { config } from "dotenv";
 import { CentralOrder } from "../entities/OrderEntity";
 import { CentralCustomer } from "../entities/CustomerEntity";
 
-// Load environment variables
 config();
 
-// Define the SQLite Product structure
 interface SQLiteProduct {
   id?: number;
   name: string;
   quantity: number;
-  price: number;
+  price: string;
   type: string;
 }
 
-// Database configurations
 const sourceConfig = {
   type: "sqlite" as const,
-  database: "/home/ayman/sqlite.db",
+  database: "/home/ayman/mydatabase.db",
   entities: [],
   synchronize: false,
 };
@@ -33,94 +30,109 @@ const targetConfig = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  // Include all related entities
   entities: [CentralProduct, CentralCategory, CentralOperation, CentralOrder, CentralCustomer],
   synchronize: false,
 };
 
-async function validateConnection() {
-  console.log("Validating PostgreSQL connection configuration:");
-  console.log("Host:", targetConfig.host);
-  console.log("Port:", targetConfig.port);
-  console.log("Database:", targetConfig.database);
-  console.log("Username:", targetConfig.username);
-
-  if (!targetConfig.password) {
-    throw new Error("Database password is not set in environment variables");
-  }
-}
-
 async function migrateProductsAndCategories() {
-  await validateConnection();
-
   const sourceDs = new DataSource(sourceConfig);
   const targetDs = new DataSource(targetConfig);
 
   try {
     console.log("Initializing database connections...");
     await sourceDs.initialize();
-    console.log("SQLite connection initialized successfully");
-
     await targetDs.initialize();
-    console.log("PostgreSQL connection initialized successfully");
 
-    // 1. Get all unique product types from SQLite
-    const sqliteProducts: SQLiteProduct[] = await sourceDs.query("SELECT * FROM Products");
+    // 1. Get all products from SQLite
+    const sqliteProducts: SQLiteProduct[] = await sourceDs.query("SELECT * FROM products");
+    console.log(`Found ${sqliteProducts.length} products to migrate`);
 
-    // Extract unique types for categories
-    const uniqueTypes = [...new Set(sqliteProducts.map((product) => product.type))];
-    console.log(`Found ${uniqueTypes.length} unique categories to migrate`);
-
-    // 2. Create categories in PostgreSQL
+    // 2. Create categories
     const categoryRepo = targetDs.getRepository(CentralCategory);
+    const uniqueTypes = [...new Set(sqliteProducts.map((product) => product.type))];
     const categoryMap = new Map<string, CentralCategory>();
 
     for (const type of uniqueTypes) {
       if (!type) continue;
+      let category = await categoryRepo.findOne({ where: { name: type } });
+      if (!category) {
+        category = await categoryRepo.save(categoryRepo.create({ name: type }));
+        console.log(`Created category: ${type}`);
+      }
+      categoryMap.set(type, category);
+    }
 
+    // 3. Migrate products with duplicate handling
+    const productRepo = targetDs.getRepository(CentralProduct);
+    const results = {
+      success: 0,
+      skipped: 0,
+      failed: 0,
+      duplicates: [] as string[],
+      errors: [] as string[],
+    };
+
+    // Process one product at a time to handle errors individually
+    for (const sqliteProduct of sqliteProducts) {
       try {
-        let category = await categoryRepo.findOne({ where: { name: type } });
+        // Check if product already exists
+        const existingProduct = await productRepo.findOne({
+          where: { name: sqliteProduct.name },
+        });
 
-        if (!category) {
-          category = categoryRepo.create({ name: type });
-          category = await categoryRepo.save(category);
-          console.log(`Created category: ${type}`);
-        } else {
-          console.log(`Using existing category: ${type}`);
+        if (existingProduct) {
+          console.log(`Skipping duplicate product: ${sqliteProduct.name}`);
+          results.skipped++;
+          results.duplicates.push(sqliteProduct.name);
+          continue;
         }
 
-        categoryMap.set(type, category);
+        const category = categoryMap.get(sqliteProduct.type);
+        if (!category) {
+          throw new Error(`Category not found for product ${sqliteProduct.name}`);
+        }
+
+        const price = parseFloat(sqliteProduct.price.replace(/[^0-9.-]+/g, ""));
+        if (isNaN(price)) {
+          throw new Error(`Invalid price format: ${sqliteProduct.price}`);
+        }
+
+        const product = productRepo.create({
+          name: sqliteProduct.name,
+          measure: "pieces",
+          price: price,
+          category: category,
+          operations: [],
+        });
+
+        await productRepo.save(product);
+        results.success++;
+
+        if (results.success % 10 === 0) {
+          console.log(`Successfully migrated ${results.success} products`);
+        }
       } catch (error) {
-        console.error(`Failed to process category ${type}:`, error);
-        throw error;
+        results.failed++;
+        results.errors.push(`Failed to migrate ${sqliteProduct.name}: ${error}`);
+        console.error(`Error migrating product ${sqliteProduct.name}:`, error);
       }
     }
 
-    // 3. Migrate products with their categories
-    const productRepo = targetDs.getRepository(CentralProduct);
-    const batchSize = 1000;
+    // Print final results
+    console.log("\nMigration Summary:");
+    console.log(`Successfully migrated: ${results.success} products`);
+    console.log(`Skipped duplicates: ${results.skipped} products`);
+    console.log(`Failed: ${results.failed} products`);
 
-    console.log(`Starting product migration in batches of ${batchSize}`);
-
-    for (let i = 0; i < sqliteProducts.length; i += batchSize) {
-      const batch = sqliteProducts.slice(i, i + batchSize);
-      const productsToSave = batch.map((sqliteProduct) => {
-        const category = categoryMap.get(sqliteProduct.type);
-
-        return productRepo.create({
-          name: sqliteProduct.name,
-          measure: "pieces",
-          price: sqliteProduct.price,
-          category: category,
-          operations: [], // Initialize empty operations array
-        });
-      });
-
-      await productRepo.save(productsToSave);
-      console.log(`Migrated products ${i + 1} to ${i + batch.length} of ${sqliteProducts.length}`);
+    if (results.duplicates.length > 0) {
+      console.log("\nDuplicate products:");
+      results.duplicates.forEach((name) => console.log(`- ${name}`));
     }
 
-    console.log("Migration completed successfully");
+    if (results.errors.length > 0) {
+      console.log("\nErrors encountered:");
+      results.errors.forEach((error) => console.log(`- ${error}`));
+    }
   } catch (error) {
     console.error("Migration failed:", error);
     throw error;
@@ -134,7 +146,7 @@ async function migrateProductsAndCategories() {
 if (require.main === module) {
   migrateProductsAndCategories()
     .then(() => {
-      console.log("Migration completed successfully");
+      console.log("Migration completed");
       process.exit(0);
     })
     .catch((error) => {
