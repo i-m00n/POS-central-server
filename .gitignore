@@ -21,7 +21,7 @@ logs/
 # Database
 *.sqlite
 *.sqlite3
-*.db
+# *.db
 
 # IDE specific files
 .vscode/
