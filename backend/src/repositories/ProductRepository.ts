@@ -79,8 +79,8 @@ export const ProductRepository = AppDataSource.getRepository(CentralProduct).ext
     if (dto.price) {
       queryBuilder.andWhere("product.price = :price", { price: dto.price });
     }
-    if (dto.category_name) {
-      queryBuilder.andWhere("category.name LIKE :category", { category: `%${dto.category_name}%` });
+    if (dto.category) {
+      queryBuilder.andWhere("category.name LIKE :category", { category: `%${dto.category}%` });
     }
     dto;
 

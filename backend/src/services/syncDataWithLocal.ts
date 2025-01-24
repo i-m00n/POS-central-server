@@ -32,7 +32,7 @@ export class CentralDataService {
           measure: product.measure,
           quantity: 500,
           price: product.price,
-          category_name: categoryName || "uncategorized", // Provide a default value
+          category: categoryName || "uncategorized", // Provide a default value
         },
       });
     }
